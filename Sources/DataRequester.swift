@@ -36,6 +36,10 @@ struct DataRequester: Sendable {
             )
         }
 
+#if DEBUG
+        print("GET \(url)\n\(headers)\n")
+#endif
+
         let response = await session
             .request(url, headers: headers)
             .serializingData(emptyResponseCodes: [304])

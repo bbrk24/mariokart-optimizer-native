@@ -31,7 +31,7 @@ struct ImageManager {
                 let result = await ImageManager.queue.addOrWait(id: imageName) {
                     await DataRequester().getData(
                         url: ImageManager.baseUrl.appending(path: imageName),
-                        accept: "image/png, image/webp, image/jpeg;q=0.8",
+                        accept: "image/png, image/webp, image/jpeg;q=0.75",
                         ifModifiedSince: lastModified
                     )
                 }

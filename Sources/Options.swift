@@ -32,9 +32,11 @@ final class OptionsManager {
     }
 
     private init() {
+#if !os(iOS)
         if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
             try! FileManager.default.createDirectory(at: cacheDirUrl, withIntermediateDirectories: true)
         }
+#endif
     }
 
     static let shared = OptionsManager()
