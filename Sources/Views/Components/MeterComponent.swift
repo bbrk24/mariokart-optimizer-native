@@ -2,20 +2,127 @@ import SwiftCrossUI
 import Foundation
 
 let darkYellow = Color(0.741, 0.741, 0.0)
+fileprivate let minHeight = 1 + Int(2 * strokeWidth)
+fileprivate let minWidth = 24 + Int(7 * strokeWidth)
+fileprivate let idealWidth = 288 + Int(7 * strokeWidth)
+fileprivate let maxHeight = 16 + 2 * strokeWidth
 
 #if os(Linux)
+fileprivate let strokeWidth = 1
 
+struct Meter: View {
+    @Environment(\.colorScheme) var colorScheme
+    var statName: String
+    var width: Float
+
+    var strokeColor: Color {
+        switch colorScheme {
+        case .dark: .white
+        case .light: .black
+        }
+    }
+
+    var fillColor: Color {
+        switch colorScheme {
+        case .dark: darkYellow
+        case .light: .yellow
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(statName)
+                .if(colorScheme == .dark) {
+                    $0.foregroundColor(darkYellow)
+                }
+
+            VStack(spacing: 0) {
+                strokeColor.frame(width: Int(idealWidth), height: strokeWidth)
+
+                HStack(spacing: 0) {
+                    Group {
+                        strokeColor.frame(width: strokeWidth)
+
+                        fillColor.frame(
+                            width: Int(min(width, 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(max(1.0 - width, 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        strokeColor.frame(width: strokeWidth)
+
+                        fillColor.frame(
+                            width: Int(max(min(width - 1.0, 1.0), 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(min(max(2.0 - width, 0.0), 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        strokeColor.frame(width: strokeWidth)
+
+                        fillColor.frame(
+                            width: Int(max(min(width - 2.0, 1.0), 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(min(max(3.0 - width, 0.0), 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+                    }
+
+                    strokeColor.frame(width: strokeWidth)
+
+                    Group {
+                        fillColor.frame(
+                            width: Int(max(min(width - 3.0, 1.0), 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(min(max(4.0 - width, 0.0), 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        strokeColor.frame(width: strokeWidth)
+
+                        fillColor.frame(
+                            width: Int(max(min(width - 4.0, 1.0), 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(min(max(5.0 - width, 0.0), 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        strokeColor.frame(width: strokeWidth)
+
+                        fillColor.frame(
+                            width: Int(max(width - 5.0, 0.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        Color.clear.frame(
+                            width: Int(min(6.0 - width, 1.0) * Float(idealWidth - 7 * strokeWidth) / 6.0)
+                        )
+
+                        strokeColor.frame(width: strokeWidth)
+                    }
+                }
+
+                strokeColor.frame(width: Int(idealWidth), height: strokeWidth)
+            }
+            .frame(
+                minHeight: minHeight,
+                idealHeight: maxHeight,
+                maxHeight: Double(maxHeight)
+            )
+        }
+    }
+}
 #else
-fileprivate let slant = 0.2
 fileprivate let strokeWidth = 1.5
-fileprivate let maxHeight = 16.0 + 2.0 * strokeWidth
+fileprivate let slant = 0.2
 
 fileprivate func meterSize(_ proposal: SIMD2<Int>) -> ViewSize {
-    let minHeight = 1 + Int(2.0 * strokeWidth)
-    let minWidth = 24 + Int(7.0 * strokeWidth)
-    let idealWidth = 288 + Int(7.0 * strokeWidth)
-     
-    return ViewSize(
+    ViewSize(
         size: SIMD2(
             x: max(minWidth, proposal.x),
             y: max(minHeight, min(proposal.y, Int(maxHeight)))

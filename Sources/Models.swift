@@ -58,6 +58,24 @@ class BaseStatBlock: Decodable, CustomDebugStringConvertible, @unchecked Sendabl
             invuln: lhs.invuln + rhs.invuln
         )
     }
+
+    var labelledStats: [(String, Float)] {
+        [
+            ("Speed", speed.land),
+            ("Water speed", speed.water),
+            ("Glider speed", speed.air),
+            ("Antigravity speed", speed.antigrav),
+            ("Acceleration", accel),
+            ("Weight", weight),
+            ("Handling", handling.land),
+            ("Water handling", handling.water),
+            ("Glider handling", handling.air),
+            ("Antigravity handling", handling.antigrav),
+            ("Traction", traction),
+            ("Mini-Turbo", miniTurbo),
+            ("Invincibility", invuln)
+        ]
+    }
 }
 
 final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {

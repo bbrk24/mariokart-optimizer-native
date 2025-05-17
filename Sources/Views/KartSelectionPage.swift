@@ -37,7 +37,7 @@ struct KartSelectionPage : View {
                 }
             }
 
-            ScrollView {
+            VStack {
                 Group {
                     Spacer()
 
@@ -47,7 +47,7 @@ struct KartSelectionPage : View {
                         Picker(of: characters, selection: $character)
 
                         RemoteImage(src: "\(character?.description ?? "unknown").webp")
-                            .frame(maxWidth: 50, maxHeight: 50)
+                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Kart")
@@ -56,7 +56,7 @@ struct KartSelectionPage : View {
                         Picker(of: karts, selection: $kart)
 
                         RemoteImage(src: "\(kart?.description ?? "unknown").webp")
-                            .frame(maxWidth: 50, maxHeight: 50)
+                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Wheels")
@@ -65,7 +65,7 @@ struct KartSelectionPage : View {
                         Picker(of: wheels, selection: $wheel)
 
                         RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
-                            .frame(maxWidth: 50, maxHeight: 50)
+                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Glider")
@@ -74,7 +74,7 @@ struct KartSelectionPage : View {
                         Picker(of: gliders, selection: $glider)
 
                         RemoteImage(src: "\(glider?.description ?? "unknown").webp")
-                            .frame(maxWidth: 50, maxHeight: 50)
+                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Spacer()
@@ -83,26 +83,23 @@ struct KartSelectionPage : View {
                 Divider()
 
                 Group {
-                    Spacer()
+                    if let character, let kart, let wheel, let glider {
+                        let characterStats = data.characters[character.index]
+                        let kartStats = data.karts[kart.index]
+                        let wheelStats = data.wheels[wheel.index]
+                        let gliderStats = data.gliders[glider.index]
 
-                    Meter(statName: "TEST", width: 3.5)
-                        .padding(.horizontal)
+                        let totalStats = characterStats + kartStats + wheelStats + gliderStats
 
-                    Spacer()
-
-                    // if let character, let kart, let wheel, let glider {
-                    //     let characterStats = data.characters[character.index]
-                    //     let kartStats = data.karts[kart.index]
-                    //     let wheelStats = data.wheels[wheel.index]
-                    //     let gliderStats = data.gliders[glider.index]
-
-                    //     Text("\(characterStats + kartStats + wheelStats + gliderStats)")
-                    // } else {
-                    //     Text("Select a combination to see its stats here!")
-                    //         .padding()
-                    // }
+                        ForEach(totalStats.labelledStats) {
+                            Meter(statName: $0, width: $1)
+                        }
+                    } else {
+                        Text("Select a combination to see its stats here!")
+                    }
                 }
-                .frame(height: 150)
+                    .frame(height: 518)
+                    .padding()
             }
         } else {
             ProgressView()
