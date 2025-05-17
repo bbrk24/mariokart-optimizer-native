@@ -83,17 +83,24 @@ struct KartSelectionPage : View {
                 Divider()
 
                 Group {
-                    if let character, let kart, let wheel, let glider {
-                        let characterStats = data.characters[character.index]
-                        let kartStats = data.karts[kart.index]
-                        let wheelStats = data.wheels[wheel.index]
-                        let gliderStats = data.gliders[glider.index]
+                    Spacer()
 
-                        Text("\(characterStats + kartStats + wheelStats + gliderStats)")
-                    } else {
-                        Text("Select a combination to see its stats here!")
-                            .padding()
-                    }
+                    Meter(statName: "TEST", width: 3.5)
+                        .padding(.horizontal)
+
+                    Spacer()
+
+                    // if let character, let kart, let wheel, let glider {
+                    //     let characterStats = data.characters[character.index]
+                    //     let kartStats = data.karts[kart.index]
+                    //     let wheelStats = data.wheels[wheel.index]
+                    //     let gliderStats = data.gliders[glider.index]
+
+                    //     Text("\(characterStats + kartStats + wheelStats + gliderStats)")
+                    // } else {
+                    //     Text("Select a combination to see its stats here!")
+                    //         .padding()
+                    // }
                 }
                 .frame(height: 150)
             }
