@@ -14,6 +14,7 @@ struct RemoteImage: View {
             if let image {
                 SwiftCrossUI.Image(image)
                     .resizable()
+                    .aspectRatio(contentMode: .fit)
             } else if !loading {
                 Text("Error loading \(src)")
             } else {

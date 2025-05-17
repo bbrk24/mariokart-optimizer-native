@@ -9,7 +9,7 @@ let package = Package(
         .iOS(.v16),
     ],
     dependencies: [
-        .package(url: "https://github.com/stackotter/swift-cross-ui", revision: "92ddd6b1396f7bafb6629adeabbdbc275b931b00"),
+        .package(url: "https://github.com/stackotter/swift-cross-ui", revision: "b8496c0a4c960667eefb6969fe95afa280e9ce46"),
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.10.2")),
         .package(url: "https://github.com/stackotter/swift-image-formats", .upToNextMinor(from: "0.3.2")),
     ],

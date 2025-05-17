@@ -29,13 +29,11 @@ struct OptionsPage: View {
                 Spacer()
 
                 Button("Save Changes") {
-                    if let memoryImageCacheSize {
-                        OptionsManager.shared.setOptions(
-                            .v1(memoryImageCacheSize: memoryImageCacheSize, useDiskCache: useDiskCache)
-                        )
-                    }
+                    OptionsManager.shared.setOptions(
+                        .v1(memoryImageCacheSize: memoryImageCacheSize!, useDiskCache: useDiskCache)
+                    )
                 }
-                .if(memoryImageCacheSize == nil) { $0.foregroundColor(.gray) }
+                .disabled(memoryImageCacheSize == nil)
 
                 Spacer()
             }

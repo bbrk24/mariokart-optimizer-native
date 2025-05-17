@@ -3,20 +3,65 @@ struct TerrainDependentStat: Decodable {
     var air: Float
     var water: Float
     var antigrav: Float
+
+    static let zero = TerrainDependentStat(land: 0.0, air: 0.0, water: 0.0, antigrav: 0.0)
+    
+    static func + (lhs: TerrainDependentStat, rhs: TerrainDependentStat) -> TerrainDependentStat {
+        .init(
+            land: lhs.land + rhs.land,
+            air: lhs.air + rhs.air,
+            water: lhs.water + rhs.water,
+            antigrav: lhs.antigrav + rhs.antigrav
+        )
+    }
 }
 
-class BaseStatBlock: Decodable, @unchecked Sendable {
-    var speed: TerrainDependentStat
-    var accel: Float
-    var weight: Float
-    var handling: TerrainDependentStat
-    var traction: Float
-    var miniTurbo: Float
-    var invuln: Float
+class BaseStatBlock: Decodable, CustomDebugStringConvertible, @unchecked Sendable {
+    let speed: TerrainDependentStat
+    let accel: Float
+    let weight: Float
+    let handling: TerrainDependentStat
+    let traction: Float
+    let miniTurbo: Float
+    let invuln: Float
+
+    var debugDescription: String {
+        "\(Self.self)(speed: \(speed), accel: \(accel), weight: \(weight), handling: \(handling), traction: \(traction), miniTurbo: \(miniTurbo), invuln: \(invuln))"
+    }
+
+    private init(
+        speed: TerrainDependentStat,
+        accel: Float,
+        weight: Float,
+        handling: TerrainDependentStat,
+        traction: Float,
+        miniTurbo: Float,
+        invuln: Float
+    ) {
+        self.speed = speed
+        self.accel = accel
+        self.weight = weight
+        self.handling = handling
+        self.traction = traction
+        self.miniTurbo = miniTurbo
+        self.invuln = invuln
+    }
+
+    static func + (lhs: BaseStatBlock, rhs: BaseStatBlock) -> BaseStatBlock {
+        .init(
+            speed: lhs.speed + rhs.speed,
+            accel: lhs.accel + rhs.accel,
+            weight: lhs.weight + rhs.weight,
+            handling: lhs.handling + rhs.handling,
+            traction: lhs.traction + rhs.traction,
+            miniTurbo: lhs.miniTurbo + rhs.miniTurbo,
+            invuln: lhs.invuln + rhs.invuln
+        )
+    }
 }
 
 final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {
-    var characters: [String]
+    let characters: [String]
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -31,7 +76,7 @@ final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {
 }
 
 final class WheelStatBlock: BaseStatBlock, @unchecked Sendable {
-    var wheels: [String]
+    let wheels: [String]
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -46,7 +91,7 @@ final class WheelStatBlock: BaseStatBlock, @unchecked Sendable {
 }
 
 final class GliderStatBlock: BaseStatBlock, @unchecked Sendable {
-    var gliders: [String]
+    let gliders: [String]
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -61,8 +106,8 @@ final class GliderStatBlock: BaseStatBlock, @unchecked Sendable {
 }
 
 final class KartStatBlock: BaseStatBlock, @unchecked Sendable {
-    var karts: [String]
-    var inwardDrift: Bool
+    let karts: [String]
+    let inwardDrift: Bool
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

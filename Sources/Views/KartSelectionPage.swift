@@ -37,42 +37,65 @@ struct KartSelectionPage : View {
                 }
             }
 
-            VStack {
-                Text("Character")
+            ScrollView {
+                Group {
+                    Spacer()
 
-                HStack {
-                    Picker(of: characters, selection: $character)
+                    Text("Character")
 
-                    RemoteImage(src: "\(character?.description ?? "unknown").webp")
-                        .frame(maxWidth: 50, maxHeight: 50)
+                    HStack {
+                        Picker(of: characters, selection: $character)
+
+                        RemoteImage(src: "\(character?.description ?? "unknown").webp")
+                            .frame(maxWidth: 50, maxHeight: 50)
+                    }
+
+                    Text("Kart")
+
+                    HStack {
+                        Picker(of: karts, selection: $kart)
+
+                        RemoteImage(src: "\(kart?.description ?? "unknown").webp")
+                            .frame(maxWidth: 50, maxHeight: 50)
+                    }
+
+                    Text("Wheels")
+
+                    HStack {
+                        Picker(of: wheels, selection: $wheel)
+
+                        RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
+                            .frame(maxWidth: 50, maxHeight: 50)
+                    }
+
+                    Text("Glider")
+
+                    HStack {
+                        Picker(of: gliders, selection: $glider)
+
+                        RemoteImage(src: "\(glider?.description ?? "unknown").webp")
+                            .frame(maxWidth: 50, maxHeight: 50)
+                    }
+
+                    Spacer()
                 }
 
-                Text("Kart")
+                Divider()
 
-                HStack {
-                    Picker(of: karts, selection: $kart)
+                Group {
+                    if let character, let kart, let wheel, let glider {
+                        let characterStats = data.characters[character.index]
+                        let kartStats = data.karts[kart.index]
+                        let wheelStats = data.wheels[wheel.index]
+                        let gliderStats = data.gliders[glider.index]
 
-                    RemoteImage(src: "\(kart?.description ?? "unknown").webp")
-                        .frame(maxWidth: 50, maxHeight: 50)
+                        Text("\(characterStats + kartStats + wheelStats + gliderStats)")
+                    } else {
+                        Text("Select a combination to see its stats here!")
+                            .padding()
+                    }
                 }
-
-                Text("Wheels")
-
-                HStack {
-                    Picker(of: wheels, selection: $wheel)
-
-                    RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
-                        .frame(maxWidth: 50, maxHeight: 50)
-                }
-
-                Text("Glider")
-
-                HStack {
-                    Picker(of: gliders, selection: $glider)
-
-                    RemoteImage(src: "\(glider?.description ?? "unknown").webp")
-                        .frame(maxWidth: 50, maxHeight: 50)
-                }
+                .frame(height: 150)
             }
         } else {
             ProgressView()
