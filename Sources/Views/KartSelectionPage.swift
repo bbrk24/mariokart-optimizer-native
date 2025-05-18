@@ -93,12 +93,13 @@ struct KartSelectionPage : View {
 
                         ForEach(totalStats.labelledStats) {
                             Meter(statName: $0, width: $1)
+                                .frame(maxWidth: 320)
                         }
                     } else {
                         Text("Select a combination to see its stats here!")
                     }
                 }
-                    .frame(height: 518)
+                    .frame(height: 800)
                     .padding()
             }
         } else {

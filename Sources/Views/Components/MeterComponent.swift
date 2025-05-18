@@ -5,10 +5,10 @@ let darkYellow = Color(0.741, 0.741, 0.0)
 fileprivate let minHeight = 1 + Int(2 * strokeWidth)
 fileprivate let minWidth = 24 + Int(7 * strokeWidth)
 fileprivate let idealWidth = 288 + Int(7 * strokeWidth)
-fileprivate let maxHeight = 16 + 2 * strokeWidth
 
-#if os(Linux)
+#if canImport(GtkBackend)
 fileprivate let strokeWidth = 1
+fileprivate let maxHeight = 16
 
 struct Meter: View {
     @Environment(\.colorScheme) var colorScheme
@@ -120,6 +120,7 @@ struct Meter: View {
 #else
 fileprivate let strokeWidth = 1.5
 fileprivate let slant = 0.2
+fileprivate let maxHeight = 16.0
 
 fileprivate func meterSize(_ proposal: SIMD2<Int>) -> ViewSize {
     ViewSize(
@@ -192,7 +193,7 @@ struct MeterForeground: StyledShape {
     var strokeStyle: StrokeStyle? = StrokeStyle(width: strokeWidth)
 
     func path(in bounds: Path.Rect) -> Path {
-        let radius = bounds.height / 7.0
+        let radius = (bounds.height - strokeWidth) / 7.0
 
         var path = MeterShape()
             .path(
@@ -204,7 +205,7 @@ struct MeterForeground: StyledShape {
                 )
             )
 
-        let offset = strokeWidth / 2.0 + bounds.x
+        let offset = bounds.x + strokeWidth / 2.0
         let width = bounds.width - strokeWidth - (bounds.height - radius - strokeWidth) * slant
 
         for i in 1..<6 {
@@ -251,7 +252,8 @@ struct MeterBackground: StyledShape {
                 in: Path.Rect(
                     x: bounds.x + strokeWidth / 2.0,
                     y: bounds.y + strokeWidth / 2.0,
-                    width: (bounds.width - strokeWidth) * Double(width / 6.0),
+                    // This expression was derived experimentally and I have no logical explanation for it.
+                    width: (bounds.width - 7.0 * strokeWidth) * Double(width / 6.0) + strokeWidth * Double(2.375 + width / 2.0),
                     height: bounds.height - strokeWidth
                 )
             )
