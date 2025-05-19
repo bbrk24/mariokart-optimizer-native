@@ -9,9 +9,11 @@ let package = Package(
         .iOS(.v16),
     ],
     dependencies: [
-        .package(url: "https://github.com/stackotter/swift-cross-ui", revision: "4e21dfd2fd5582f8b0a3d32698891513f4a6972a"),
+        .package(url: "https://github.com/stackotter/swift-cross-ui", revision: "7e790e27810df01b328c8da68edbfbe7c5097cf5"),
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.10.2")),
         .package(url: "https://github.com/stackotter/swift-image-formats", .upToNextMinor(from: "0.3.2")),
+        .package(url: "https://github.com/apple/swift-algorithms", .upToNextMajor(from: "1.2.1")),
+        .package(url: "https://github.com/groue/Semaphore", .upToNextMinor(from: "0.1.0")),
     ],
     targets: [
         .executableTarget(
@@ -21,6 +23,8 @@ let package = Package(
                 .product(name: "DefaultBackend", package: "swift-cross-ui"),
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "ImageFormats", package: "swift-image-formats"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "Semaphore", package: "Semaphore"),
             ]
         ),
     ],

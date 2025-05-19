@@ -8,7 +8,7 @@ struct IntegerInput<T: BinaryInteger>: View {
 
     var formatter: IntegerFormatStyle<T>
 
-    @State var text = ""
+    @State private var text = ""
 
     var body: some View {
         TextField(placeholder, text: $text)

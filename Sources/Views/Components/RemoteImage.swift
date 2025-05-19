@@ -15,8 +15,9 @@ struct RemoteImage: View {
                 SwiftCrossUI.Image(image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 64, maxHeight: 64)
             } else if !loading {
-                Text("Error loading \(src)")
+                Text(src.components(separatedBy: ".")[0])
             } else {
                 ProgressView()
                     .task {

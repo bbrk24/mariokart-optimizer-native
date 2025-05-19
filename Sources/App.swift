@@ -15,11 +15,19 @@ public struct MKOApp: App {
 
     public var body: some Scene {
         WindowGroup {
-            ScrollView {
-                KartSelectionPage()
+            SplitView {
+                ScrollView {
+                    OptimizationPage()
+                        .frame(width: 306)
+                        .padding(.horizontal)
+                }
+            } detail: {
+                ScrollView {
+                    KartSelectionPage()
+                }
             }
-                .frame(minWidth: 375, minHeight: 375)
-                .font(.system(size: 16))
+            .frame(minHeight: 375)
+            .font(.system(size: 16))
         }
     }
 }

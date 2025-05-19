@@ -51,7 +51,7 @@ final class GameDataManager: ObservableObject {
                 self.data = try decoder.decode(GameData.self, from: data)
                 return
             } else if httpResponse.statusCode != 304 {
-                savedError = savedError ?? UnknownError(details: response.debugDescription)
+                savedError = UnknownError(details: response.debugDescription)
             }
         } else {
             savedError = savedError ?? UnknownError(details: "AFDataResponse contains neither response nor error")

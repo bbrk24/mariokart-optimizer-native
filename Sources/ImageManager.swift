@@ -2,33 +2,37 @@ import SwiftCrossUI
 import Foundation
 import ImageFormats
 import Alamofire
+import Semaphore
 
 struct ImageManager {
     static let queue = RequestQueue<String, AFDataResponse<Data>, Never>()
     static let baseUrl = URL(string: "https://bbrk24.github.io/mariokart-optimizer/img/")!
+    static let concurrentRequestLimit = 8
+
+    var semaphore = AsyncSemaphore(value: concurrentRequestLimit)
 
     private init() {}
     static let shared = ImageManager()
 
     func startLoading(imageName: String) -> some AsyncSequence<ImageFormats.Image<RGBA>, Never> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
-            var lastModified: Date? = nil
-            var expires: Date? = nil
-            if let t = ImageCache.shared.getImage(name: imageName) {
-                continuation.yield(t.image)
-                lastModified = t.lastModified
-                expires = t.expires
-            }
-
-            if let expires, expires > .now {
-                continuation.finish()         
-                return
-            }
-
-            Task { [lastModified] in
+            Task {
                 defer { continuation.finish() }
+                try await semaphore.waitUnlessCancelled()
+                defer { semaphore.signal() }
 
-                let result = await ImageManager.queue.addOrWait(id: imageName) {
+                var lastModified: Date? = nil
+                if let t = ImageCache.shared.getImage(name: imageName) {
+                    continuation.yield(t.image)
+                    lastModified = t.lastModified
+
+                    if let expires = t.expires, expires > .now {
+                        continuation.finish()         
+                        return
+                    }
+                }
+
+                let result = await ImageManager.queue.addOrWait(id: imageName) { [lastModified] in
                     await DataRequester().getData(
                         url: ImageManager.baseUrl.appending(path: imageName),
                         accept: "image/png, image/webp, image/jpeg;q=0.75",

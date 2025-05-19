@@ -1,5 +1,5 @@
 {
-  "originHash" : "868b0a5c5752cb932e720a940f94dcad6f62a5f4d9476a6dc1635972d3425334",
+  "originHash" : "532bc97ef11b9ff1e6f88412b50b00cfd6773afcc0083732f34cef522394b33d",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -38,11 +38,29 @@
       }
     },
     {
+      "identity" : "semaphore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/Semaphore",
+      "state" : {
+        "revision" : "2543679282aa6f6c8ecf2138acd613ed20790bc2",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-algorithms",
+      "state" : {
+        "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
+        "version" : "1.2.1"
+      }
+    },
+    {
       "identity" : "swift-cross-ui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/stackotter/swift-cross-ui",
       "state" : {
-        "revision" : "4e21dfd2fd5582f8b0a3d32698891513f4a6972a"
+        "revision" : "7e790e27810df01b328c8da68edbfbe7c5097cf5"
       }
     },
     {
@@ -70,6 +88,15 @@
       "state" : {
         "revision" : "569627091e1fbb8745d691aeeb008e7247dedb7c",
         "version" : "0.6.1"
+      }
+    },
+    {
+      "identity" : "swift-numerics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-numerics.git",
+      "state" : {
+        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
+        "version" : "1.0.3"
       }
     },
     {

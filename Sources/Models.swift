@@ -16,7 +16,7 @@ struct TerrainDependentStat: Decodable {
     }
 }
 
-class BaseStatBlock: Decodable, CustomDebugStringConvertible, @unchecked Sendable {
+class BaseStatBlock: Decodable, @unchecked Sendable {
     let speed: TerrainDependentStat
     let accel: Float
     let weight: Float
@@ -24,10 +24,6 @@ class BaseStatBlock: Decodable, CustomDebugStringConvertible, @unchecked Sendabl
     let traction: Float
     let miniTurbo: Float
     let invuln: Float
-
-    var debugDescription: String {
-        "\(Self.self)(speed: \(speed), accel: \(accel), weight: \(weight), handling: \(handling), traction: \(traction), miniTurbo: \(miniTurbo), invuln: \(invuln))"
-    }
 
     private init(
         speed: TerrainDependentStat,

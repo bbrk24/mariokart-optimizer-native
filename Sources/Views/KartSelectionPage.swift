@@ -6,8 +6,8 @@ struct DescriptionAndIndex: Equatable, CustomStringConvertible {
 }
 
 struct KartSelectionPage : View {
-    @State var dataManager = GameDataManager.shared
-    var data: GameData? { dataManager.data }
+    @State private var dataManager = GameDataManager.shared
+    private var data: GameData? { dataManager.data }
 
     @State var character: DescriptionAndIndex?
     @State var kart: DescriptionAndIndex?
@@ -47,7 +47,6 @@ struct KartSelectionPage : View {
                         Picker(of: characters, selection: $character)
 
                         RemoteImage(src: "\(character?.description ?? "unknown").webp")
-                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Kart")
@@ -56,7 +55,6 @@ struct KartSelectionPage : View {
                         Picker(of: karts, selection: $kart)
 
                         RemoteImage(src: "\(kart?.description ?? "unknown").webp")
-                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Wheels")
@@ -65,7 +63,6 @@ struct KartSelectionPage : View {
                         Picker(of: wheels, selection: $wheel)
 
                         RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
-                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Text("Glider")
@@ -74,7 +71,6 @@ struct KartSelectionPage : View {
                         Picker(of: gliders, selection: $glider)
 
                         RemoteImage(src: "\(glider?.description ?? "unknown").webp")
-                            .frame(maxWidth: 64, maxHeight: 64)
                     }
 
                     Spacer()
