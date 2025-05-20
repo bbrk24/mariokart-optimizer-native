@@ -50,6 +50,7 @@ public struct MKOApp: App {
                         Color(0.5, 0.5, 0.5, 0.5)
 
                         OptionsPage(show: $showOptions)
+                            .frame(maxWidth: 700)
                             .background(colorScheme == .dark ? Color.black : Color.white)
                             .cornerRadius(8)
                             .padding()

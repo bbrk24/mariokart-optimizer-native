@@ -41,7 +41,8 @@ struct OptionsPage: View {
                     .clear
                 }
             }())
-            .padding()
+            .padding(.vertical)
+            .padding(.horizontal, 20)
 
             Toggle("Save images to disk", active: $useDiskCache)
                 .toggleStyle(.switch)

@@ -17,9 +17,11 @@ struct ImageManager {
     func startLoading(imageName: String) -> some AsyncSequence<ImageFormats.Image<RGBA>, Never> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             Task {
-                defer { continuation.finish() }
-                try await semaphore.waitUnlessCancelled()
-                defer { semaphore.signal() }
+                await semaphore.wait()
+                defer { 
+                    continuation.finish()
+                    semaphore.signal()
+                }
 
                 var lastModified: Date? = nil
                 if let t = ImageCache.shared.getImage(name: imageName) {

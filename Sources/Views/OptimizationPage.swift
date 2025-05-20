@@ -1,6 +1,26 @@
 import SwiftCrossUI
 import Foundation
 
+enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
+    case dont, min, max
+
+    var description: String {
+        switch self {
+        case .dont: "Don't optimize"
+        case .min: "Minimize"
+        case .max: "Maximize"
+        }
+    }
+
+    var multiplier: Float {
+        switch self {
+        case .dont: 0.0
+        case .min: -1.0
+        case .max: 1.0
+        }
+    }
+}
+
 struct OptimizationPage: View {
     @State private var dataManager = GameDataManager.shared
     private var data: GameData? { dataManager.data }
@@ -37,6 +57,20 @@ struct OptimizationPage: View {
     @State private var minInvuln: Float? = 0.75
     @State private var maxInvuln: Float? = 5.75
 
+    @State private var landSpeedDirection: OptimizeDirection? = .dont
+    @State private var waterSpeedDirection: OptimizeDirection? = .dont
+    @State private var airSpeedDirection: OptimizeDirection? = .dont
+    @State private var antigravSpeedDirection: OptimizeDirection? = .dont
+    @State private var accelDirection: OptimizeDirection? = .dont
+    @State private var weightDirection: OptimizeDirection? = .dont
+    @State private var landHandlingDirection: OptimizeDirection? = .dont
+    @State private var waterHandlingDirection: OptimizeDirection? = .dont
+    @State private var airHandlingDirection: OptimizeDirection? = .dont
+    @State private var antigravHandlingDirection: OptimizeDirection? = .dont
+    @State private var tractionDirection: OptimizeDirection? = .dont
+    @State private var miniTurboDirection: OptimizeDirection? = .dont
+    @State private var invulnDirection: OptimizeDirection? = .dont
+
     @State private var combos: [(Int, Int, Int, Int)] = []
 
     private let formatter = FloatingPointFormatStyle<Float>()
@@ -46,7 +80,8 @@ struct OptimizationPage: View {
     private func inputRow(
         label: String,
         min: Binding<Float?>,
-        max: Binding<Float?>
+        max: Binding<Float?>,
+        direction: Binding<OptimizeDirection?>
     ) -> some View {
         Text(label)
 
@@ -64,6 +99,8 @@ struct OptimizationPage: View {
                 value: max,
                 formatter: formatter
             )
+
+            Picker(of: OptimizeDirection.allCases, selection: direction)
         }
     }
 
@@ -72,25 +109,25 @@ struct OptimizationPage: View {
             VStack {
                 Group {
                     Group {
-                        inputRow(label: "Speed", min: $minLandSpeed, max: $maxLandSpeed)
-                        inputRow(label: "Water speed", min: $minWaterSpeed, max: $maxWaterSpeed)
-                        inputRow(label: "Glider speed", min: $minAirSpeed, max: $maxAirSpeed)
-                        inputRow(label: "Antigravity speed", min: $minAntigravSpeed, max: $maxAntigravSpeed)
+                        inputRow(label: "Speed", min: $minLandSpeed, max: $maxLandSpeed, direction: $landSpeedDirection)
+                        inputRow(label: "Water speed", min: $minWaterSpeed, max: $maxWaterSpeed, direction: $waterSpeedDirection)
+                        inputRow(label: "Glider speed", min: $minAirSpeed, max: $maxAirSpeed, direction: $airSpeedDirection)
+                        inputRow(label: "Antigravity speed", min: $minAntigravSpeed, max: $maxAntigravSpeed, direction: $antigravSpeedDirection)
                     }
 
-                    inputRow(label: "Acceleration", min: $minAccel, max: $maxAccel)
-                    inputRow(label: "Weight", min: $minWeight, max: $maxWeight)
+                    inputRow(label: "Acceleration", min: $minAccel, max: $maxAccel, direction: $accelDirection)
+                    inputRow(label: "Weight", min: $minWeight, max: $maxWeight, direction: $weightDirection)
                     
                     Group {
-                        inputRow(label: "Handling", min: $minLandHandling, max: $maxLandHandling)
-                        inputRow(label: "Water Handling", min: $minWaterHandling, max: $maxWaterHandling)
-                        inputRow(label: "Glider Handling", min: $minAirHandling, max: $maxAirHandling)
-                        inputRow(label: "Antigravity Handling", min: $minAntigravHandling, max: $maxAntigravHandling)
+                        inputRow(label: "Handling", min: $minLandHandling, max: $maxLandHandling, direction: $landHandlingDirection)
+                        inputRow(label: "Water Handling", min: $minWaterHandling, max: $maxWaterHandling, direction: $waterHandlingDirection)
+                        inputRow(label: "Glider Handling", min: $minAirHandling, max: $maxAirHandling, direction: $airHandlingDirection)
+                        inputRow(label: "Antigravity Handling", min: $minAntigravHandling, max: $maxAntigravHandling, direction: $antigravSpeedDirection)
                     }
 
-                    inputRow(label: "Traction", min: $minTraction, max: $maxTraction)
-                    inputRow(label: "Mini-Turbo", min: $minMiniTurbo, max: $maxMiniTurbo)
-                    inputRow(label: "Invincibility", min: $minInvuln, max: $maxInvuln)
+                    inputRow(label: "Traction", min: $minTraction, max: $maxTraction, direction: $tractionDirection)
+                    inputRow(label: "Mini-Turbo", min: $minMiniTurbo, max: $maxMiniTurbo, direction: $miniTurboDirection)
+                    inputRow(label: "Invincibility", min: $minInvuln, max: $maxInvuln, direction: $invulnDirection)
                 }
 
                 Button("Go!") {
@@ -114,6 +151,25 @@ struct OptimizationPage: View {
                             && (minTraction! ... maxTraction!).contains(statTotal.traction)
                             && (minMiniTurbo! ... maxMiniTurbo!).contains(statTotal.miniTurbo)
                             && (minInvuln! ... maxInvuln!).contains(statTotal.invuln)
+                    }.maxAll {character, kart, wheel, glider in
+                        let statTotal = character.element + kart.element + wheel.element + glider.element
+                        return (
+                            landSpeedDirection!.multiplier * statTotal.speed.land
+                            + waterSpeedDirection!.multiplier * statTotal.speed.water
+                            + airSpeedDirection!.multiplier * statTotal.speed.air
+                            + antigravSpeedDirection!.multiplier * statTotal.speed.antigrav
+                        ) / 4.0
+                        + accelDirection!.multiplier * statTotal.accel
+                        + weightDirection!.multiplier * statTotal.weight
+                        + (
+                            landHandlingDirection!.multiplier * statTotal.handling.land
+                            + waterHandlingDirection!.multiplier * statTotal.handling.water
+                            + airHandlingDirection!.multiplier * statTotal.handling.air
+                            + antigravHandlingDirection!.multiplier * statTotal.handling.antigrav
+                        ) / 4.0
+                        + tractionDirection!.multiplier * statTotal.traction
+                        + miniTurboDirection!.multiplier * statTotal.miniTurbo
+                        + invulnDirection!.multiplier * statTotal.invuln
                     }.map {
                         ($0.offset, $1.offset, $2.offset, $3.offset)
                     }
@@ -121,13 +177,15 @@ struct OptimizationPage: View {
                 .disabled(
                     [minLandSpeed, maxLandSpeed, minWaterSpeed, maxWaterSpeed, minAirSpeed, maxAirSpeed, minAntigravSpeed, maxAntigravSpeed, minAccel, maxAccel, minWeight, maxWeight, minLandHandling, maxLandHandling, minWaterHandling, maxWaterHandling, minAirHandling, maxAirHandling, minAntigravHandling, maxAntigravHandling, minTraction, maxTraction, minMiniTurbo, maxMiniTurbo, minInvuln, maxInvuln]
                         .contains(nil)
+                    || [landSpeedDirection, waterSpeedDirection, airSpeedDirection, antigravSpeedDirection, accelDirection, weightDirection, landHandlingDirection, waterHandlingDirection, airHandlingDirection, antigravHandlingDirection, tractionDirection, miniTurboDirection, invulnDirection]
+                        .contains(nil)
                 )
 
-                if combos.count > 50 {
+                if combos.count > 75 {
                     Text("Results have been truncated for performance reasons.")
                 }
 
-                ForEach(combos.prefix(50)) { characterIndex, kartIndex, wheelIndex, gliderIndex in
+                ForEach(combos.prefix(75)) { characterIndex, kartIndex, wheelIndex, gliderIndex in
                     Divider()
 
                     HStack {
@@ -162,6 +220,7 @@ struct OptimizationPage: View {
                             self.glider = .init(description: data.gliders[gliderIndex].gliders[0], index: gliderIndex)
                         }
                     }
+                    .fixedSize()
                 }
             }
         } else {
