@@ -15,7 +15,6 @@ struct RemoteImage: View {
                 SwiftCrossUI.Image(image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 64, maxHeight: 64)
             } else if !loading {
                 Text(src.components(separatedBy: ".")[0])
             } else {
@@ -28,6 +27,8 @@ struct RemoteImage: View {
                     }
             }
         }
+        .frame(width: 48, height: 48)
+        .fixedSize()
         .onChange(of: src, initial: false) {
             loading = true
             image = nil

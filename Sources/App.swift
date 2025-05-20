@@ -3,6 +3,14 @@ import DefaultBackend
 
 @main
 public struct MKOApp: App {
+    @State var character: DescriptionAndIndex?
+    @State var kart: DescriptionAndIndex?
+    @State var wheel: DescriptionAndIndex?
+    @State var glider: DescriptionAndIndex?
+    @State var showOptions = false
+
+    @Environment(\.colorScheme) var colorScheme
+
     public init() {
         Task {
             do {
@@ -15,18 +23,40 @@ public struct MKOApp: App {
 
     public var body: some Scene {
         WindowGroup {
-            SplitView {
-                ScrollView {
-                    OptimizationPage()
-                        .frame(width: 306)
-                        .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 0) {
+                Button("Options") {
+                    showOptions.toggle()
                 }
-            } detail: {
-                ScrollView {
-                    KartSelectionPage()
+                .padding()
+
+                Divider()
+
+                ZStack {
+                    SplitView {
+                        ScrollView {
+                            OptimizationPage(character: $character, kart: $kart, wheel: $wheel, glider: $glider)
+                                .frame(width: 300)
+                                .padding(.horizontal)
+                        }
+                    } detail: {
+                        ScrollView {
+                            KartSelectionPage(character: $character, kart: $kart, wheel: $wheel, glider: $glider)
+                        }
+                    }
+                    .frame(minHeight: 375)
+
+                    if showOptions {
+                        ZStack {
+                        Color(0.5, 0.5, 0.5, 0.5)
+
+                        OptionsPage(show: $showOptions)
+                            .background(colorScheme == .dark ? Color.black : Color.white)
+                            .cornerRadius(8)
+                            .padding()
+                        }
+                    }
                 }
             }
-            .frame(minHeight: 375)
             .font(.system(size: 16))
         }
     }

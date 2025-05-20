@@ -7,7 +7,7 @@ import Semaphore
 struct ImageManager {
     static let queue = RequestQueue<String, AFDataResponse<Data>, Never>()
     static let baseUrl = URL(string: "https://bbrk24.github.io/mariokart-optimizer/img/")!
-    static let concurrentRequestLimit = 8
+    static let concurrentRequestLimit = 6
 
     var semaphore = AsyncSemaphore(value: concurrentRequestLimit)
 
@@ -42,15 +42,17 @@ struct ImageManager {
 
                 if
                     let data = result.data,
-                    let response = result.response,
-                    response.statusCode == 200
+                    let response = result.response
                 {
                     var expires: Date? = nil
                     if let expiresHeader = response.headers["expires"] {
                         expires = DataRequester.headerDateFormatter.date(from: expiresHeader)
                     }
 
-                    if let newImage = ImageCache.shared.addImage(rawBytes: data, name: imageName, expires: expires) {
+                    if 
+                        response.statusCode == 200,
+                        let newImage = ImageCache.shared.addImage(rawBytes: data, name: imageName, expires: expires)
+                    {
                         continuation.yield(newImage)
                     }
                 }

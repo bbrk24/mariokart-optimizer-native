@@ -9,10 +9,10 @@ struct KartSelectionPage : View {
     @State private var dataManager = GameDataManager.shared
     private var data: GameData? { dataManager.data }
 
-    @State var character: DescriptionAndIndex?
-    @State var kart: DescriptionAndIndex?
-    @State var wheel: DescriptionAndIndex?
-    @State var glider: DescriptionAndIndex?
+    @Binding var character: DescriptionAndIndex?
+    @Binding var kart: DescriptionAndIndex?
+    @Binding var wheel: DescriptionAndIndex?
+    @Binding var glider: DescriptionAndIndex?
 
     var body: some View {
         if let data {
@@ -44,7 +44,7 @@ struct KartSelectionPage : View {
                     Text("Character")
 
                     HStack {
-                        Picker(of: characters, selection: $character)
+                        Picker(of: characters, selection: _character)
 
                         RemoteImage(src: "\(character?.description ?? "unknown").webp")
                     }
@@ -52,7 +52,7 @@ struct KartSelectionPage : View {
                     Text("Kart")
 
                     HStack {
-                        Picker(of: karts, selection: $kart)
+                        Picker(of: karts, selection: _kart)
 
                         RemoteImage(src: "\(kart?.description ?? "unknown").webp")
                     }
@@ -60,7 +60,7 @@ struct KartSelectionPage : View {
                     Text("Wheels")
 
                     HStack {
-                        Picker(of: wheels, selection: $wheel)
+                        Picker(of: wheels, selection: _wheel)
 
                         RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
                     }
@@ -68,7 +68,7 @@ struct KartSelectionPage : View {
                     Text("Glider")
 
                     HStack {
-                        Picker(of: gliders, selection: $glider)
+                        Picker(of: gliders, selection: _glider)
 
                         RemoteImage(src: "\(glider?.description ?? "unknown").webp")
                     }

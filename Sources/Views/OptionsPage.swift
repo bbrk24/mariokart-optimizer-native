@@ -2,43 +2,60 @@ import SwiftCrossUI
 import Foundation
 
 struct OptionsPage: View {
-    @State var memoryImageCacheSize: UInt?
-    @State var useDiskCache: Bool
+    @State private var memoryImageCacheSize: UInt?
+    @State private var useDiskCache: Bool
+    @Binding var show: Bool
 
-    init() {
+    init(show: Binding<Bool>) {
+        _show = show
+
         let options = OptionsManager.shared.getOptions()
         memoryImageCacheSize = options.memoryImageCacheSize
         useDiskCache = options.useDiskCache
     }
 
     var body: some View {
-        HStack {
-            Spacer()
-        
-            VStack {
+        VStack {
+            HStack {
                 Spacer()
 
-                Text("Maximum in-memory image cache size")
-
-                MemoryAmountInput(amount: $memoryImageCacheSize)
-
-                Spacer()
-
-                Toggle("Save images to disk", active: $useDiskCache)
-
-                Spacer()
-
-                Button("Save Changes") {
-                    OptionsManager.shared.setOptions(
-                        .v1(memoryImageCacheSize: memoryImageCacheSize!, useDiskCache: useDiskCache)
-                    )
+                Button("Close") {
+                    show = false
                 }
-                .disabled(memoryImageCacheSize == nil)
-
-                Spacer()
+                .padding()
             }
 
-            Spacer()
+            Text("Maximum in-memory image cache size")
+                .padding(.top)
+
+            MemoryAmountInput(amount: $memoryImageCacheSize)
+                .frame(width: 200)
+
+            Text(
+                "Warning: reducing the image cache size too much will result in extraneous network requests and will not necessarily improve memory usage."
+            )
+            .foregroundColor({
+                if let memoryImageCacheSize, memoryImageCacheSize < 630000 {
+                    .red
+                } else {
+                    .clear
+                }
+            }())
+            .padding()
+
+            Toggle("Save images to disk", active: $useDiskCache)
+                .toggleStyle(.switch)
+                .padding()
+
+            Button("Save Changes") {
+                if OptionsManager.shared.setOptions(
+                    .v1(memoryImageCacheSize: memoryImageCacheSize!, useDiskCache: useDiskCache)
+                ) {
+                    show = false
+                }
+            }
+            .disabled(memoryImageCacheSize == nil)
+            .padding(.bottom, 20)
         }
     }
 }

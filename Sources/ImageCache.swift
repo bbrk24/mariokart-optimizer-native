@@ -75,11 +75,11 @@ final class ImageCache {
 
     func getImage(name: String) -> (image: Image<RGBA>, lastModified: Date, expires: Date?)? {
         if let entry = cache[name] {
+            cache[name]!.lastUsed = .now
             if let expiration = entry.expires, expiration < .now {
                 cache[name] = nil
                 totalMemory -= entry.estimatedSize
             }
-            cache[name]!.lastUsed = .now
 
             return (entry.image, entry.lastModified, entry.expires)
         }
@@ -119,6 +119,7 @@ final class ImageCache {
             .map { ($0, $1.estimatedSize) }
         
         for (name, amount) in expired {
+            print("Evicting \(name) from cache; expires: \(cache[name]!.expires!)")
             cache[name] = nil
             totalMemory -= amount
         }

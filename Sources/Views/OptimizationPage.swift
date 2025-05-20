@@ -5,6 +5,11 @@ struct OptimizationPage: View {
     @State private var dataManager = GameDataManager.shared
     private var data: GameData? { dataManager.data }
 
+    @Binding var character: DescriptionAndIndex?
+    @Binding var kart: DescriptionAndIndex?
+    @Binding var wheel: DescriptionAndIndex?
+    @Binding var glider: DescriptionAndIndex?
+
     @State private var minLandSpeed: Float? = 0.75
     @State private var maxLandSpeed: Float? = 5.75
     @State private var minWaterSpeed: Float? = 0.75
@@ -118,7 +123,11 @@ struct OptimizationPage: View {
                         .contains(nil)
                 )
 
-                ForEach(combos) { characterIndex, kartIndex, wheelIndex, gliderIndex in
+                if combos.count > 50 {
+                    Text("Results have been truncated for performance reasons.")
+                }
+
+                ForEach(combos.prefix(50)) { characterIndex, kartIndex, wheelIndex, gliderIndex in
                     Divider()
 
                     HStack {
@@ -144,6 +153,13 @@ struct OptimizationPage: View {
                             ForEach(data.gliders[gliderIndex].gliders) {
                                 RemoteImage(src: "\($0).webp")
                             }
+                        }
+
+                        Button(">") {
+                            self.character = .init(description: data.characters[characterIndex].characters[0], index: characterIndex)
+                            self.kart = .init(description: data.karts[kartIndex].karts[0], index: kartIndex)
+                            self.wheel = .init(description: data.wheels[wheelIndex].wheels[0], index: wheelIndex)
+                            self.glider = .init(description: data.gliders[gliderIndex].gliders[0], index: gliderIndex)
                         }
                     }
                 }
