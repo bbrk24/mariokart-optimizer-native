@@ -44,16 +44,17 @@ struct FloatInput<T: BinaryFloatingPoint>: View {
                 }
             }
             .onChange(of: text, initial: false) {
-                value = (try? T(text, format: formatter)).map {
-                    if $0 < min {
-                        text = formatter.format(min)
-                        return min
-                    } else if $0 > max {
-                        text = formatter.format(max)
-                        return max
+                value = (try? T(text, format: formatter))
+                    .map {
+                        if $0 < min {
+                            text = formatter.format(min)
+                            return min
+                        } else if $0 > max {
+                            text = formatter.format(max)
+                            return max
+                        }
+                        return $0
                     }
-                    return $0
-                }
             }
     }
 }

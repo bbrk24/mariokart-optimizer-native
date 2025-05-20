@@ -1,11 +1,11 @@
-import SwiftCrossUI 
+import SwiftCrossUI
 
 struct DescriptionAndIndex: Equatable, CustomStringConvertible {
     var description: String
     var index: Int
 }
 
-struct KartSelectionPage : View {
+struct KartSelectionPage: View {
     @State private var dataManager = GameDataManager.shared
     private var data: GameData? { dataManager.data }
 
@@ -16,26 +16,22 @@ struct KartSelectionPage : View {
 
     var body: some View {
         if let data {
-            let karts = data.karts.enumerated().flatMap { (offset, element) in
-                element.karts.map {
-                    DescriptionAndIndex(description: $0, index: offset)
+            let karts = data.karts.enumerated()
+                .flatMap { (offset, element) in
+                    element.karts.map { DescriptionAndIndex(description: $0, index: offset) }
                 }
-            }
-            let characters = data.characters.enumerated().flatMap { (offset, element) in
-                element.characters.map {
-                    DescriptionAndIndex(description: $0, index: offset)
+            let characters = data.characters.enumerated()
+                .flatMap { (offset, element) in
+                    element.characters.map { DescriptionAndIndex(description: $0, index: offset) }
                 }
-            }
-            let wheels = data.wheels.enumerated().flatMap { (offset, element) in
-                element.wheels.map {
-                    DescriptionAndIndex(description: $0, index: offset)
+            let wheels = data.wheels.enumerated()
+                .flatMap { (offset, element) in
+                    element.wheels.map { DescriptionAndIndex(description: $0, index: offset) }
                 }
-            }
-            let gliders = data.gliders.enumerated().flatMap { (offset, element) in
-                element.gliders.map {
-                    DescriptionAndIndex(description: $0, index: offset)
+            let gliders = data.gliders.enumerated()
+                .flatMap { (offset, element) in
+                    element.gliders.map { DescriptionAndIndex(description: $0, index: offset) }
                 }
-            }
 
             VStack {
                 Group {
@@ -95,8 +91,8 @@ struct KartSelectionPage : View {
                         Text("Select a combination to see its stats here!")
                     }
                 }
-                    .frame(height: 800)
-                    .padding()
+                .frame(height: 800)
+                .padding()
             }
         } else {
             ProgressView()

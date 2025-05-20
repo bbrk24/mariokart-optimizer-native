@@ -5,7 +5,7 @@ struct TerrainDependentStat: Decodable {
     var antigrav: Float
 
     static let zero = TerrainDependentStat(land: 0.0, air: 0.0, water: 0.0, antigrav: 0.0)
-    
+
     static func + (lhs: TerrainDependentStat, rhs: TerrainDependentStat) -> TerrainDependentStat {
         .init(
             land: lhs.land + rhs.land,
@@ -57,19 +57,11 @@ class BaseStatBlock: Decodable, @unchecked Sendable {
 
     var labelledStats: [(String, Float)] {
         [
-            ("Speed", speed.land),
-            ("Water speed", speed.water),
-            ("Glider speed", speed.air),
-            ("Antigravity speed", speed.antigrav),
-            ("Acceleration", accel),
-            ("Weight", weight),
-            ("Handling", handling.land),
-            ("Water handling", handling.water),
-            ("Glider handling", handling.air),
-            ("Antigravity handling", handling.antigrav),
-            ("Traction", traction),
-            ("Mini-Turbo", miniTurbo),
-            ("Invincibility", invuln)
+            ("Speed", speed.land), ("Water speed", speed.water), ("Glider speed", speed.air),
+            ("Antigravity speed", speed.antigrav), ("Acceleration", accel), ("Weight", weight),
+            ("Handling", handling.land), ("Water handling", handling.water),
+            ("Glider handling", handling.air), ("Antigravity handling", handling.antigrav),
+            ("Traction", traction), ("Mini-Turbo", miniTurbo), ("Invincibility", invuln),
         ]
     }
 }
@@ -132,7 +124,8 @@ final class KartStatBlock: BaseStatBlock, @unchecked Sendable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case karts, inwardDrift
+        case karts
+        case inwardDrift
     }
 }
 

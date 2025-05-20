@@ -34,26 +34,36 @@ public struct MKOApp: App {
                 ZStack {
                     SplitView {
                         ScrollView {
-                            OptimizationPage(character: $character, kart: $kart, wheel: $wheel, glider: $glider)
-                                .frame(width: 300)
-                                .padding(.horizontal)
+                            OptimizationPage(
+                                character: $character,
+                                kart: $kart,
+                                wheel: $wheel,
+                                glider: $glider
+                            )
+                            .frame(width: 300)
+                            .padding(.horizontal)
                         }
                     } detail: {
                         ScrollView {
-                            KartSelectionPage(character: $character, kart: $kart, wheel: $wheel, glider: $glider)
+                            KartSelectionPage(
+                                character: $character,
+                                kart: $kart,
+                                wheel: $wheel,
+                                glider: $glider
+                            )
                         }
                     }
                     .frame(minHeight: 375)
 
                     if showOptions {
                         ZStack {
-                        Color(0.5, 0.5, 0.5, 0.5)
+                            Color(0.5, 0.5, 0.5, 0.5)
 
-                        OptionsPage(show: $showOptions)
-                            .frame(maxWidth: 700)
-                            .background(colorScheme == .dark ? Color.black : Color.white)
-                            .cornerRadius(8)
-                            .padding()
+                            OptionsPage(show: $showOptions)
+                                .frame(maxWidth: 700)
+                                .background(colorScheme == .dark ? Color.black : Color.white)
+                                .cornerRadius(8)
+                                .padding()
                         }
                     }
                 }

@@ -1,8 +1,4 @@
-actor RequestQueue<
-    Id: Hashable & Sendable,
-    Result: Sendable,
-    Failure: Error
-> {
+actor RequestQueue<Id: Hashable & Sendable, Result: Sendable, Failure: Error> {
     private var requests: [Id: Task<Result, Error>] = [:]
 
     func addOrWait(

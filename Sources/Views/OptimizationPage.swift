@@ -75,7 +75,7 @@ struct OptimizationPage: View {
 
     private let formatter = FloatingPointFormatStyle<Float>()
         .precision(.integerAndFractionLength(integerLimits: 1..<2, fractionLimits: 0...2))
-    
+
     @ViewBuilder
     private func inputRow(
         label: String,
@@ -86,19 +86,9 @@ struct OptimizationPage: View {
         Text(label)
 
         HStack {
-            FloatInput(
-                min: 0.75,
-                max: max.wrappedValue ?? 5.75,
-                value: min,
-                formatter: formatter
-            )
-            
-            FloatInput(
-                min: min.wrappedValue ?? 0.75,
-                max: 5.75,
-                value: max,
-                formatter: formatter
-            )
+            FloatInput(min: 0.75, max: max.wrappedValue ?? 5.75, value: min, formatter: formatter)
+
+            FloatInput(min: min.wrappedValue ?? 0.75, max: 5.75, value: max, formatter: formatter)
 
             Picker(of: OptimizeDirection.allCases, selection: direction)
         }
@@ -109,25 +99,90 @@ struct OptimizationPage: View {
             VStack {
                 Group {
                     Group {
-                        inputRow(label: "Speed", min: $minLandSpeed, max: $maxLandSpeed, direction: $landSpeedDirection)
-                        inputRow(label: "Water speed", min: $minWaterSpeed, max: $maxWaterSpeed, direction: $waterSpeedDirection)
-                        inputRow(label: "Glider speed", min: $minAirSpeed, max: $maxAirSpeed, direction: $airSpeedDirection)
-                        inputRow(label: "Antigravity speed", min: $minAntigravSpeed, max: $maxAntigravSpeed, direction: $antigravSpeedDirection)
+                        inputRow(
+                            label: "Speed",
+                            min: $minLandSpeed,
+                            max: $maxLandSpeed,
+                            direction: $landSpeedDirection
+                        )
+                        inputRow(
+                            label: "Water speed",
+                            min: $minWaterSpeed,
+                            max: $maxWaterSpeed,
+                            direction: $waterSpeedDirection
+                        )
+                        inputRow(
+                            label: "Glider speed",
+                            min: $minAirSpeed,
+                            max: $maxAirSpeed,
+                            direction: $airSpeedDirection
+                        )
+                        inputRow(
+                            label: "Antigravity speed",
+                            min: $minAntigravSpeed,
+                            max: $maxAntigravSpeed,
+                            direction: $antigravSpeedDirection
+                        )
                     }
 
-                    inputRow(label: "Acceleration", min: $minAccel, max: $maxAccel, direction: $accelDirection)
-                    inputRow(label: "Weight", min: $minWeight, max: $maxWeight, direction: $weightDirection)
-                    
+                    inputRow(
+                        label: "Acceleration",
+                        min: $minAccel,
+                        max: $maxAccel,
+                        direction: $accelDirection
+                    )
+                    inputRow(
+                        label: "Weight",
+                        min: $minWeight,
+                        max: $maxWeight,
+                        direction: $weightDirection
+                    )
+
                     Group {
-                        inputRow(label: "Handling", min: $minLandHandling, max: $maxLandHandling, direction: $landHandlingDirection)
-                        inputRow(label: "Water Handling", min: $minWaterHandling, max: $maxWaterHandling, direction: $waterHandlingDirection)
-                        inputRow(label: "Glider Handling", min: $minAirHandling, max: $maxAirHandling, direction: $airHandlingDirection)
-                        inputRow(label: "Antigravity Handling", min: $minAntigravHandling, max: $maxAntigravHandling, direction: $antigravSpeedDirection)
+                        inputRow(
+                            label: "Handling",
+                            min: $minLandHandling,
+                            max: $maxLandHandling,
+                            direction: $landHandlingDirection
+                        )
+                        inputRow(
+                            label: "Water Handling",
+                            min: $minWaterHandling,
+                            max: $maxWaterHandling,
+                            direction: $waterHandlingDirection
+                        )
+                        inputRow(
+                            label: "Glider Handling",
+                            min: $minAirHandling,
+                            max: $maxAirHandling,
+                            direction: $airHandlingDirection
+                        )
+                        inputRow(
+                            label: "Antigravity Handling",
+                            min: $minAntigravHandling,
+                            max: $maxAntigravHandling,
+                            direction: $antigravSpeedDirection
+                        )
                     }
 
-                    inputRow(label: "Traction", min: $minTraction, max: $maxTraction, direction: $tractionDirection)
-                    inputRow(label: "Mini-Turbo", min: $minMiniTurbo, max: $maxMiniTurbo, direction: $miniTurboDirection)
-                    inputRow(label: "Invincibility", min: $minInvuln, max: $maxInvuln, direction: $invulnDirection)
+                    inputRow(
+                        label: "Traction",
+                        min: $minTraction,
+                        max: $maxTraction,
+                        direction: $tractionDirection
+                    )
+                    inputRow(
+                        label: "Mini-Turbo",
+                        min: $minMiniTurbo,
+                        max: $maxMiniTurbo,
+                        direction: $miniTurboDirection
+                    )
+                    inputRow(
+                        label: "Invincibility",
+                        min: $minInvuln,
+                        max: $maxInvuln,
+                        direction: $invulnDirection
+                    )
                 }
 
                 Button("Go!") {
@@ -136,48 +191,66 @@ struct OptimizationPage: View {
                         Array(data.karts.enumerated()),
                         Array(data.wheels.enumerated()),
                         Array(data.gliders.enumerated())
-                    ).filter { character, kart, wheel, glider in
-                        let statTotal = character.element + kart.element + wheel.element + glider.element
-                        return (minLandSpeed! ... maxLandSpeed!).contains(statTotal.speed.land)
-                            && (minWaterSpeed! ... maxWaterSpeed!).contains(statTotal.speed.water)
-                            && (minAirSpeed! ... maxAirSpeed!).contains(statTotal.speed.air)
-                            && (minAntigravSpeed! ... maxAntigravSpeed!).contains(statTotal.speed.antigrav)
-                            && (minAccel! ... maxAccel!).contains(statTotal.accel)
-                            && (minWeight! ... maxWeight!).contains(statTotal.weight)
-                            && (minLandHandling! ... maxLandHandling!).contains(statTotal.handling.land)
-                            && (minWaterHandling! ... maxWaterHandling!).contains(statTotal.handling.water)
-                            && (minAirHandling! ... maxAirHandling!).contains(statTotal.handling.air)
-                            && (minAntigravHandling! ... maxAntigravHandling!).contains(statTotal.handling.antigrav)
-                            && (minTraction! ... maxTraction!).contains(statTotal.traction)
-                            && (minMiniTurbo! ... maxMiniTurbo!).contains(statTotal.miniTurbo)
-                            && (minInvuln! ... maxInvuln!).contains(statTotal.invuln)
-                    }.maxAll {character, kart, wheel, glider in
-                        let statTotal = character.element + kart.element + wheel.element + glider.element
-                        return (
-                            landSpeedDirection!.multiplier * statTotal.speed.land
+                    )
+                    .filter { character, kart, wheel, glider in
+                        let statTotal =
+                            character.element + kart.element + wheel.element + glider.element
+                        return (minLandSpeed!...maxLandSpeed!).contains(statTotal.speed.land)
+                            && (minWaterSpeed!...maxWaterSpeed!).contains(statTotal.speed.water)
+                            && (minAirSpeed!...maxAirSpeed!).contains(statTotal.speed.air)
+                            && (minAntigravSpeed!...maxAntigravSpeed!)
+                                .contains(statTotal.speed.antigrav)
+                            && (minAccel!...maxAccel!).contains(statTotal.accel)
+                            && (minWeight!...maxWeight!).contains(statTotal.weight)
+                            && (minLandHandling!...maxLandHandling!)
+                                .contains(statTotal.handling.land)
+                            && (minWaterHandling!...maxWaterHandling!)
+                                .contains(statTotal.handling.water)
+                            && (minAirHandling!...maxAirHandling!).contains(statTotal.handling.air)
+                            && (minAntigravHandling!...maxAntigravHandling!)
+                                .contains(statTotal.handling.antigrav)
+                            && (minTraction!...maxTraction!).contains(statTotal.traction)
+                            && (minMiniTurbo!...maxMiniTurbo!).contains(statTotal.miniTurbo)
+                            && (minInvuln!...maxInvuln!).contains(statTotal.invuln)
+                    }
+                    .maxAll { character, kart, wheel, glider in
+                        let statTotal =
+                            character.element + kart.element + wheel.element + glider.element
+                        return
+                            (landSpeedDirection!.multiplier * statTotal.speed.land
                             + waterSpeedDirection!.multiplier * statTotal.speed.water
                             + airSpeedDirection!.multiplier * statTotal.speed.air
-                            + antigravSpeedDirection!.multiplier * statTotal.speed.antigrav
-                        ) / 4.0
-                        + accelDirection!.multiplier * statTotal.accel
-                        + weightDirection!.multiplier * statTotal.weight
-                        + (
-                            landHandlingDirection!.multiplier * statTotal.handling.land
-                            + waterHandlingDirection!.multiplier * statTotal.handling.water
-                            + airHandlingDirection!.multiplier * statTotal.handling.air
-                            + antigravHandlingDirection!.multiplier * statTotal.handling.antigrav
-                        ) / 4.0
-                        + tractionDirection!.multiplier * statTotal.traction
-                        + miniTurboDirection!.multiplier * statTotal.miniTurbo
-                        + invulnDirection!.multiplier * statTotal.invuln
-                    }.map {
-                        ($0.offset, $1.offset, $2.offset, $3.offset)
+                            + antigravSpeedDirection!.multiplier * statTotal.speed.antigrav) / 4.0
+                            + accelDirection!.multiplier * statTotal.accel
+                            + weightDirection!.multiplier * statTotal.weight
+                            + (landHandlingDirection!.multiplier * statTotal.handling.land
+                                + waterHandlingDirection!.multiplier * statTotal.handling.water
+                                + airHandlingDirection!.multiplier * statTotal.handling.air
+                                + antigravHandlingDirection!.multiplier
+                                * statTotal.handling.antigrav) / 4.0
+                            + tractionDirection!.multiplier * statTotal.traction
+                            + miniTurboDirection!.multiplier * statTotal.miniTurbo
+                            + invulnDirection!.multiplier * statTotal.invuln
                     }
+                    .map { ($0.offset, $1.offset, $2.offset, $3.offset) }
                 }
                 .disabled(
-                    [minLandSpeed, maxLandSpeed, minWaterSpeed, maxWaterSpeed, minAirSpeed, maxAirSpeed, minAntigravSpeed, maxAntigravSpeed, minAccel, maxAccel, minWeight, maxWeight, minLandHandling, maxLandHandling, minWaterHandling, maxWaterHandling, minAirHandling, maxAirHandling, minAntigravHandling, maxAntigravHandling, minTraction, maxTraction, minMiniTurbo, maxMiniTurbo, minInvuln, maxInvuln]
-                        .contains(nil)
-                    || [landSpeedDirection, waterSpeedDirection, airSpeedDirection, antigravSpeedDirection, accelDirection, weightDirection, landHandlingDirection, waterHandlingDirection, airHandlingDirection, antigravHandlingDirection, tractionDirection, miniTurboDirection, invulnDirection]
+                    [
+                        minLandSpeed, maxLandSpeed, minWaterSpeed, maxWaterSpeed, minAirSpeed,
+                        maxAirSpeed, minAntigravSpeed, maxAntigravSpeed, minAccel, maxAccel,
+                        minWeight, maxWeight, minLandHandling, maxLandHandling, minWaterHandling,
+                        maxWaterHandling, minAirHandling, maxAirHandling, minAntigravHandling,
+                        maxAntigravHandling, minTraction, maxTraction, minMiniTurbo, maxMiniTurbo,
+                        minInvuln, maxInvuln,
+                    ]
+                    .contains(nil)
+                        || [
+                            landSpeedDirection, waterSpeedDirection, airSpeedDirection,
+                            antigravSpeedDirection, accelDirection, weightDirection,
+                            landHandlingDirection, waterHandlingDirection, airHandlingDirection,
+                            antigravHandlingDirection, tractionDirection, miniTurboDirection,
+                            invulnDirection,
+                        ]
                         .contains(nil)
                 )
 
@@ -214,10 +287,22 @@ struct OptimizationPage: View {
                         }
 
                         Button(">") {
-                            self.character = .init(description: data.characters[characterIndex].characters[0], index: characterIndex)
-                            self.kart = .init(description: data.karts[kartIndex].karts[0], index: kartIndex)
-                            self.wheel = .init(description: data.wheels[wheelIndex].wheels[0], index: wheelIndex)
-                            self.glider = .init(description: data.gliders[gliderIndex].gliders[0], index: gliderIndex)
+                            self.character = .init(
+                                description: data.characters[characterIndex].characters[0],
+                                index: characterIndex
+                            )
+                            self.kart = .init(
+                                description: data.karts[kartIndex].karts[0],
+                                index: kartIndex
+                            )
+                            self.wheel = .init(
+                                description: data.wheels[wheelIndex].wheels[0],
+                                index: wheelIndex
+                            )
+                            self.glider = .init(
+                                description: data.gliders[gliderIndex].gliders[0],
+                                index: gliderIndex
+                            )
                         }
                     }
                     .fixedSize()

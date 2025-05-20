@@ -34,13 +34,15 @@ struct OptionsPage: View {
             Text(
                 "Warning: reducing the image cache size too much will result in extraneous network requests and will not necessarily improve memory usage."
             )
-            .foregroundColor({
-                if let memoryImageCacheSize, memoryImageCacheSize < 630000 {
-                    .red
-                } else {
-                    .clear
-                }
-            }())
+            .foregroundColor(
+                {
+                    if let memoryImageCacheSize, memoryImageCacheSize < 630000 {
+                        .red
+                    } else {
+                        .clear
+                    }
+                }()
+            )
             .padding(.vertical)
             .padding(.horizontal, 20)
 

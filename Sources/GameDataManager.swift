@@ -35,11 +35,12 @@ final class GameDataManager: ObservableObject {
             savedError = error
         }
 
-        let response = await DataRequester().getData(
-            url: "https://bbrk24.github.io/mariokart-optimizer/data/switch.json",
-            accept: "application/json",
-            ifModifiedSince: modificationDate
-        )
+        let response = await DataRequester()
+            .getData(
+                url: "https://bbrk24.github.io/mariokart-optimizer/data/switch.json",
+                accept: "application/json",
+                ifModifiedSince: modificationDate
+            )
 
         let data = try response.result.get()
         if let httpResponse = response.response {
@@ -54,7 +55,9 @@ final class GameDataManager: ObservableObject {
                 savedError = UnknownError(details: response.debugDescription)
             }
         } else {
-            savedError = savedError ?? UnknownError(details: "AFDataResponse contains neither response nor error")
+            savedError =
+                savedError
+                ?? UnknownError(details: "AFDataResponse contains neither response nor error")
         }
 
         if let savedError {

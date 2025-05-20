@@ -6,7 +6,7 @@ struct CacheEntry {
     var lastUsed: Date
     var lastModified: Date
     var expires: Date?
-    
+
     var estimatedSize: UInt {
         UInt(MemoryLayout<CacheEntry>.size) + UInt(image.bytes.count)
     }
@@ -34,7 +34,12 @@ final class ImageCache {
             return nil
         }
 
-        let newEntry = CacheEntry(image: decodedImage, lastUsed: .now, lastModified: lastModified, expires: expires)
+        let newEntry = CacheEntry(
+            image: decodedImage,
+            lastUsed: .now,
+            lastModified: lastModified,
+            expires: expires
+        )
 
         Task { @MainActor in
             let oldMemoryUsed = cache[name]?.estimatedSize ?? 0
@@ -52,10 +57,7 @@ final class ImageCache {
 
         if OptionsManager.shared.getOptions().useDiskCache {
             if saveToDiskIfAllowed {
-                _ = FileManager.default.createFile(
-                    atPath: path,
-                    contents: rawBytes
-                )
+                _ = FileManager.default.createFile(atPath: path, contents: rawBytes)
             }
         } else if FileManager.default.fileExists(atPath: path) {
             try? FileManager.default.removeItem(atPath: path)
@@ -70,7 +72,13 @@ final class ImageCache {
         name: String,
         expires: Date?
     ) -> Image<RGBA>? {
-        return addImage(rawBytes: rawBytes, name: name, expires: expires, saveToDiskIfAllowed: true, lastModified: .now)
+        return addImage(
+            rawBytes: rawBytes,
+            name: name,
+            expires: expires,
+            saveToDiskIfAllowed: true,
+            lastModified: .now
+        )
     }
 
     func getImage(name: String) -> (image: Image<RGBA>, lastModified: Date, expires: Date?)? {
@@ -88,10 +96,9 @@ final class ImageCache {
             .appending(component: name, directoryHint: .notDirectory)
             .relativePath
 
-        let attributes = try? FileManager.default.attributesOfItem(atPath: path) 
+        let attributes = try? FileManager.default.attributesOfItem(atPath: path)
 
-        if
-            let modificationDate = (attributes?[.modificationDate] as? NSDate) as Date?,
+        if let modificationDate = (attributes?[.modificationDate] as? NSDate) as Date?,
             let data = FileManager.default.contents(atPath: path),
             let image = addImage(
                 rawBytes: data,
@@ -99,7 +106,7 @@ final class ImageCache {
                 expires: nil,
                 saveToDiskIfAllowed: false,
                 lastModified: modificationDate
-            ) 
+            )
         {
             return (image, lastModified: modificationDate, expires: nil)
         }
@@ -108,8 +115,8 @@ final class ImageCache {
     }
 
     func shrinkToFit() {
-        let expired = cache
-            .filter { 
+        let expired =
+            cache.filter {
                 if let expiration = $1.expires {
                     expiration < .now
                 } else {
@@ -117,9 +124,8 @@ final class ImageCache {
                 }
             }
             .map { ($0, $1.estimatedSize) }
-        
+
         for (name, amount) in expired {
-            print("Evicting \(name) from cache; expires: \(cache[name]!.expires!)")
             cache[name] = nil
             totalMemory -= amount
         }
@@ -129,8 +135,8 @@ final class ImageCache {
             return
         }
 
-        let sortedNamesAndMemory = cache
-            .sorted { 
+        let sortedNamesAndMemory =
+            cache.sorted {
                 if $0.value.lastUsed == $1.value.lastUsed {
                     $0.value.estimatedSize > $1.value.estimatedSize
                 } else {
@@ -138,7 +144,7 @@ final class ImageCache {
                 }
             }
             .map { ($0, $1.estimatedSize) }
-        
+
         for (name, amount) in sortedNamesAndMemory {
             cache[name] = nil
             totalMemory -= amount

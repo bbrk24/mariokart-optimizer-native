@@ -1,42 +1,48 @@
 import Foundation
 
 final class OptionsManager {
-#if os(iOS)
-    // https://stackoverflow.com/a/69395400/6253337
-    private let optionsDirUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    let cacheDirUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-#else
-#if os(Windows)
-    private let optionsDirUrl = URL(
-        filePath: ProcessInfo.processInfo.environment["APPDATA"]!,
-        directoryHint: .isDirectory
-    ).appending(component: "MariokartOptimizer", directoryHint: .isDirectory)
-#else
-    private let optionsDirUrl = URL.homeDirectory
-        .appending(component: ".mkopt", directoryHint: .isDirectory)
-#endif
+    #if os(iOS)
+        // https://stackoverflow.com/a/69395400/6253337
+        private let optionsDirUrl =
+            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let cacheDirUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    #else
+        #if os(Windows)
+            private let optionsDirUrl = URL(
+                filePath: ProcessInfo.processInfo.environment["APPDATA"]!,
+                directoryHint: .isDirectory
+            )
+            .appending(component: "MariokartOptimizer", directoryHint: .isDirectory)
+        #else
+            private let optionsDirUrl = URL.homeDirectory.appending(
+                component: ".mkopt",
+                directoryHint: .isDirectory
+            )
+        #endif
 
-    var cacheDirUrl: URL {
-        optionsDirUrl.appending(component: "cache", directoryHint: .isDirectory)
-    }
-#endif
+        var cacheDirUrl: URL {
+            optionsDirUrl.appending(component: "cache", directoryHint: .isDirectory)
+        }
+    #endif
 
     private var options: Options?
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
     private var optionsFilePath: String {
-        optionsDirUrl
-            .appending(component: "options.json", directoryHint: .notDirectory)
+        optionsDirUrl.appending(component: "options.json", directoryHint: .notDirectory)
             .relativePath
     }
 
     private init() {
-#if !os(iOS)
-        if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
-            try! FileManager.default.createDirectory(at: cacheDirUrl, withIntermediateDirectories: true)
-        }
-#endif
+        #if !os(iOS)
+            if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: cacheDirUrl,
+                    withIntermediateDirectories: true
+                )
+            }
+        #endif
     }
 
     static let shared = OptionsManager()
@@ -86,10 +92,7 @@ final class OptionsManager {
 }
 
 public enum Options: Codable, Equatable {
-    case v1(
-        memoryImageCacheSize: UInt,
-        useDiskCache: Bool
-    )
+    case v1(memoryImageCacheSize: UInt, useDiskCache: Bool)
 
     var memoryImageCacheSize: UInt {
         switch self {

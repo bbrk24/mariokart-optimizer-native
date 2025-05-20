@@ -1,15 +1,15 @@
-import SwiftCrossUI
+import Alamofire
 import Foundation
 import ImageFormats
-import Alamofire
 import Semaphore
+import SwiftCrossUI
 
 struct ImageManager {
     static let queue = RequestQueue<String, AFDataResponse<Data>, Never>()
     static let baseUrl = URL(string: "https://bbrk24.github.io/mariokart-optimizer/img/")!
     static let concurrentRequestLimit = 6
 
-    var semaphore = AsyncSemaphore(value: concurrentRequestLimit)
+    private let semaphore = AsyncSemaphore(value: concurrentRequestLimit)
 
     private init() {}
     static let shared = ImageManager()
@@ -18,7 +18,7 @@ struct ImageManager {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             Task {
                 await semaphore.wait()
-                defer { 
+                defer {
                     continuation.finish()
                     semaphore.signal()
                 }
@@ -29,39 +29,38 @@ struct ImageManager {
                     lastModified = t.lastModified
 
                     if let expires = t.expires, expires > .now {
-                        continuation.finish()         
+                        continuation.finish()
                         return
                     }
                 }
 
                 let result = await ImageManager.queue.addOrWait(id: imageName) { [lastModified] in
-                    await DataRequester().getData(
-                        url: ImageManager.baseUrl.appending(path: imageName),
-                        accept: "image/png, image/webp, image/jpeg;q=0.75",
-                        ifModifiedSince: lastModified
-                    )
+                    await DataRequester()
+                        .getData(
+                            url: ImageManager.baseUrl.appending(path: imageName),
+                            accept: "image/png, image/webp, image/jpeg;q=0.75",
+                            ifModifiedSince: lastModified
+                        )
                 }
 
-                if
-                    let data = result.data,
-                    let response = result.response
-                {
+                if let data = result.data, let response = result.response {
                     var expires: Date? = nil
                     if let expiresHeader = response.headers["expires"] {
                         expires = DataRequester.headerDateFormatter.date(from: expiresHeader)
                     }
 
-                    if 
-                        response.statusCode == 200,
-                        let newImage = ImageCache.shared.addImage(rawBytes: data, name: imageName, expires: expires)
+                    if response.statusCode == 200,
+                        let newImage = ImageCache.shared.addImage(
+                            rawBytes: data,
+                            name: imageName,
+                            expires: expires
+                        )
                     {
                         continuation.yield(newImage)
                     }
                 }
 
-                if let error = result.error {
-                    print(error)
-                }
+                if let error = result.error { print(error) }
             }
         }
     }

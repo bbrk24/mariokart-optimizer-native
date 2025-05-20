@@ -1,9 +1,9 @@
 import SwiftCrossUI
 
 enum Scale: UInt, CaseIterable {
-    case B  =             1
-    case KB =         1_000
-    case MB =     1_000_000
+    case B = 1
+    case KB = 1_000
+    case MB = 1_000_000
     case GB = 1_000_000_000
 }
 
@@ -12,9 +12,7 @@ struct MemoryAmountInput: View {
     @State private var scale: Scale? = .KB
     @State private var number: UInt?
 
-    init(
-        amount: Binding<UInt?>
-    ) {
+    init(amount: Binding<UInt?>) {
         _amount = amount
 
         if let value = amount.wrappedValue {

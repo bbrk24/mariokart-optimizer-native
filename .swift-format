@@ -1,0 +1,25 @@
+{
+    "version": 1,
+    "indentation": {
+        "spaces": 4
+    },
+    "spacesBeforeEndOfLineComments": 1,
+    "respectsExistingLineBreaks": true,
+    "lineBreakBeforeEachArgument": true,
+    "prioritizeKeepingFunctionOutputTogether": true,
+    "indentConditionalCompilationBlocks": true,
+    "lineBreakAroundMultilineExpressionChainComponents": true,
+    "fileScopedDeclarationPrivacy": {
+        "accessLevel": "fileprivate"
+    },
+    "reflowMultilineStringLiterals": {
+        "always": {}
+    },
+    "lineBreakBetweenDeclarationAttributes": true,
+    "rules": {
+        "NeverUseImplicitlyUnwrappedOptionals": true,
+        "NoBlockComments": false,
+        "UseLetInEveryBoundCaseVariable": false,
+        "UseWhereClausesInForLoops": true
+    }
+}
