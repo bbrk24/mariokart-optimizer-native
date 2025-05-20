@@ -1,27 +1,87 @@
 import Foundation
 
 final class OptionsManager {
+    private static let identifier = MKOApp.metadata?.identifier ?? "MariokartOptimizer"
+
     #if os(iOS)
         // https://stackoverflow.com/a/69395400/6253337
         private let optionsDirUrl =
             FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let cacheDirUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    #else
-        #if os(Windows)
-            private let optionsDirUrl = URL(
-                filePath: ProcessInfo.processInfo.environment["APPDATA"]!,
-                directoryHint: .isDirectory
-            )
-            .appending(component: "MariokartOptimizer", directoryHint: .isDirectory)
-        #else
-            private let optionsDirUrl = URL.homeDirectory.appending(
-                component: ".mkopt",
-                directoryHint: .isDirectory
-            )
-        #endif
+
+        private init() {}
+    #elseif os(macOS)
+        private let optionsDirUrl =
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
+
+        let cacheDirUrl =
+            FileManager.default.urls(for: .cachesDirectory, in: .systemDomainMask)[0]
+            .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
+
+        private init() {
+            if !FileManager.default.fileExists(atPath: optionsDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: optionsDirUrl,
+                    withIntermediateDirectories: false
+                )
+            }
+            if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: cacheDirUrl,
+                    withIntermediateDirectories: false,
+                    attributes: [.posixPermissions: NSNumber(value: 0o777 as Int16)]
+                )
+            }
+        }
+    #elseif os(Windows)
+        private let optionsDirUrl = URL(
+            filePath: ProcessInfo.processInfo.environment["APPDATA"]!,
+            directoryHint: .isDirectory
+        )
+        .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
 
         var cacheDirUrl: URL {
-            optionsDirUrl.appending(component: "cache", directoryHint: .isDirectory)
+            optionsDirUrl.appending(component: "Cache", directoryHint: .isDirectory)
+        }
+
+        private init() {
+            if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: cacheDirUrl,
+                    withIntermediateDirectories: true
+                )
+            }
+        }
+    #else  // os(Linux)
+        private let optionsDirUrl =
+            (ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"]
+            .flatMap {
+                $0.hasPrefix("/") ? URL(filePath: $0) : nil
+            } ?? URL.homeDirectory.appending(component: ".config", directoryHint: .isDirectory))
+            .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
+
+        let cacheDirUrl =
+            (ProcessInfo.processInfo.environment["XDG_CACHE_HOME"]
+            .flatMap {
+                $0.hasPrefix("/") ? URL(filePath: $0) : nil
+            } ?? URL.homeDirectory.appending(component: ".cache", directoryHint: .isDirectory))
+            .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
+
+        private init() {
+            if !FileManager.default.fileExists(atPath: optionsDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: optionsDirUrl,
+                    withIntermediateDirectories: true,
+                    attributes: [.posixPermissions: NSNumber(value: 0o700 as Int16)]
+                )
+            }
+            if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: cacheDirUrl,
+                    withIntermediateDirectories: true
+                )
+            }
         }
     #endif
 
@@ -32,17 +92,6 @@ final class OptionsManager {
     private var optionsFilePath: String {
         optionsDirUrl.appending(component: "options.json", directoryHint: .notDirectory)
             .relativePath
-    }
-
-    private init() {
-        #if !os(iOS)
-            if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
-                try! FileManager.default.createDirectory(
-                    at: cacheDirUrl,
-                    withIntermediateDirectories: true
-                )
-            }
-        #endif
     }
 
     static let shared = OptionsManager()
