@@ -1,0 +1,7 @@
+format_version = 2
+
+[apps.MariokartOptimizer]
+product = "MariokartOptimizer"
+version = "0.1.0"
+identifier = "com.bbrk24.MariokartOptimizer"
+category = "public.app-category.entertainment"

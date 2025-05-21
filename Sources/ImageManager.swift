@@ -14,7 +14,7 @@ struct ImageManager {
     private init() {}
     static let shared = ImageManager()
 
-    func startLoading(imageName: String) -> some AsyncSequence<ImageFormats.Image<RGBA>, Never> {
+    func startLoading(imageName: String) -> AsyncStream<ImageFormats.Image<RGBA>> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             Task {
                 await semaphore.wait()

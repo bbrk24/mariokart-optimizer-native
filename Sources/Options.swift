@@ -1,7 +1,7 @@
 import Foundation
 import SwiftCrossUI
 
-final class OptionsManager: ObservableObject {
+final class OptionsManager: SwiftCrossUI.ObservableObject {
     private static let identifier = MKOApp.metadata?.identifier ?? "MariokartOptimizer"
 
     #if os(iOS)
@@ -17,7 +17,7 @@ final class OptionsManager: ObservableObject {
             .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
 
         let cacheDirUrl =
-            FileManager.default.urls(for: .cachesDirectory, in: .systemDomainMask)[0]
+            FileManager.default.urls(for: .cachesDirectory, in: .localDomainMask)[0]
             .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
 
         private init() {
@@ -86,7 +86,7 @@ final class OptionsManager: ObservableObject {
         }
     #endif
 
-    @Published private var options: Options?
+    @SwiftCrossUI.Published private var options: Options?
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 

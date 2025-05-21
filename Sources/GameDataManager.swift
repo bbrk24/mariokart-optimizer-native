@@ -5,8 +5,8 @@ struct UnknownError: Error {
     var details: String
 }
 
-final class GameDataManager: ObservableObject {
-    @Published var data: GameData?
+final class GameDataManager: SwiftCrossUI.ObservableObject {
+    @SwiftCrossUI.Published var data: GameData?
     private let decoder = JSONDecoder()
 
     private init() {}

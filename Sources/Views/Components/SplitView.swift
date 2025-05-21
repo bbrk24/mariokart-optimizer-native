@@ -21,13 +21,13 @@ struct SplitView<TSidebar: View, TDetail: View>: View {
             if UITraitCollection.current.userInterfaceIdiom == .pad {
                 NavigationSplitView(sidebar: sidebar, detail: detail)
             } else {
-                let window = UIApplication.shared.delegate!.window!!
+                let window = UIApplication.shared.delegate?.window ?? nil
                 Group {
                     VStack(content: sidebar)
                     Divider()
                     VStack(content: detail)
                 }
-                .if(window.bounds.height > window.bounds.width) { group in
+                .if(window == nil || window!.bounds.height > window!.bounds.width) { group in
                     VStack { group }
                 } else: { group in
                     HStack { group }
