@@ -1,6 +1,7 @@
 import Foundation
+import SwiftCrossUI
 
-final class OptionsManager {
+final class OptionsManager: ObservableObject {
     private static let identifier = MKOApp.metadata?.identifier ?? "MariokartOptimizer"
 
     #if os(iOS)
@@ -85,7 +86,7 @@ final class OptionsManager {
         }
     #endif
 
-    private var options: Options?
+    @Published private var options: Options?
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
@@ -93,6 +94,8 @@ final class OptionsManager {
         optionsDirUrl.appending(component: "options.json", directoryHint: .notDirectory)
             .relativePath
     }
+
+    var locale: Locale { getOptions().locale }
 
     static let shared = OptionsManager()
 
@@ -141,21 +144,36 @@ final class OptionsManager {
 }
 
 public enum Options: Codable, Equatable {
-    case v1(memoryImageCacheSize: UInt, useDiskCache: Bool)
+    case v1(
+        memoryImageCacheSize: UInt,
+        useDiskCache: Bool,
+        locale: Locale
+    )
 
     var memoryImageCacheSize: UInt {
         switch self {
-        case .v1(let memoryImageCacheSize, useDiskCache: _):
+        case .v1(let memoryImageCacheSize, useDiskCache: _, locale: _):
             return memoryImageCacheSize
         }
     }
 
     var useDiskCache: Bool {
         switch self {
-        case .v1(memoryImageCacheSize: _, let useDiskCache):
+        case .v1(memoryImageCacheSize: _, let useDiskCache, locale: _):
             return useDiskCache
         }
     }
 
-    static let `default` = Options.v1(memoryImageCacheSize: 4_200_000, useDiskCache: true)
+    var locale: Locale {
+        switch self {
+        case .v1(memoryImageCacheSize: _, useDiskCache: _, let locale):
+            return locale
+        }
+    }
+
+    static let `default` = Options.v1(
+        memoryImageCacheSize: 4_200_000,
+        useDiskCache: true,
+        locale: Locale(identifier: "en_US")
+    )
 }

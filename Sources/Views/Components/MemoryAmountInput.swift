@@ -1,13 +1,26 @@
 import SwiftCrossUI
 
-enum Scale: UInt, CaseIterable {
+enum Scale: UInt, CaseIterable, CustomStringConvertible {
     case B = 1
     case KB = 1_000
     case MB = 1_000_000
-    case GB = 1_000_000_000
+
+    var description: String {
+        let localization = localizations[OptionsManager.shared.locale]!
+
+        switch self {
+        case .B:
+            return localization.uiElements.bytes
+        case .KB:
+            return localization.uiElements.kb
+        case .MB:
+            return localization.uiElements.mb
+        }
+    }
 }
 
 struct MemoryAmountInput: View {
+    @State private var optionsManager = OptionsManager.shared
     @Binding var amount: UInt?
     @State private var scale: Scale? = .KB
     @State private var number: UInt?
@@ -18,8 +31,6 @@ struct MemoryAmountInput: View {
         if let value = amount.wrappedValue {
             if value < 10 * Scale.KB.rawValue {
                 scale = .B
-            } else if value >= 10 * Scale.GB.rawValue {
-                scale = .GB
             } else if value >= 10 * Scale.MB.rawValue {
                 scale = .MB
             }
@@ -30,7 +41,7 @@ struct MemoryAmountInput: View {
         HStack {
             IntegerInput<UInt>(
                 value: $number,
-                formatter: .init().sign(strategy: .never)
+                formatter: .init(locale: optionsManager.locale).sign(strategy: .never)
             )
 
             Picker(of: Scale.allCases, selection: $scale)

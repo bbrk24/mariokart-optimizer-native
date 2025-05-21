@@ -22,13 +22,13 @@ enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
 }
 
 struct OptimizationPage: View {
+    @State private var optionsManager = OptionsManager.shared
     @State private var dataManager = GameDataManager.shared
-    private var data: GameData? { dataManager.data }
 
-    @Binding var character: DescriptionAndIndex?
-    @Binding var kart: DescriptionAndIndex?
-    @Binding var wheel: DescriptionAndIndex?
-    @Binding var glider: DescriptionAndIndex?
+    @Binding var character: NameAndIndex?
+    @Binding var kart: NameAndIndex?
+    @Binding var wheel: NameAndIndex?
+    @Binding var glider: NameAndIndex?
 
     @State private var minLandSpeed: Float? = 0.75
     @State private var maxLandSpeed: Float? = 5.75
@@ -71,6 +71,9 @@ struct OptimizationPage: View {
     @State private var miniTurboDirection: OptimizeDirection? = .dont
     @State private var invulnDirection: OptimizeDirection? = .dont
 
+    private var localization: Localization { localizations[optionsManager.locale]! }
+    private var data: GameData? { dataManager.data }
+
     @State private var combos: [(Int, Int, Int, Int)] = []
 
     private let formatter = FloatingPointFormatStyle<Float>()
@@ -97,28 +100,31 @@ struct OptimizationPage: View {
     var body: some View {
         if let data {
             VStack {
+                Spacer()
+                    .frame(height: 4)
+
                 Group {
                     Group {
                         inputRow(
-                            label: "Speed",
+                            label: localization.stats.landSpeed,
                             min: $minLandSpeed,
                             max: $maxLandSpeed,
                             direction: $landSpeedDirection
                         )
                         inputRow(
-                            label: "Water speed",
+                            label: localization.stats.waterSpeed,
                             min: $minWaterSpeed,
                             max: $maxWaterSpeed,
                             direction: $waterSpeedDirection
                         )
                         inputRow(
-                            label: "Glider speed",
+                            label: localization.stats.airSpeed,
                             min: $minAirSpeed,
                             max: $maxAirSpeed,
                             direction: $airSpeedDirection
                         )
                         inputRow(
-                            label: "Antigravity speed",
+                            label: localization.stats.antigravSpeed,
                             min: $minAntigravSpeed,
                             max: $maxAntigravSpeed,
                             direction: $antigravSpeedDirection
@@ -126,13 +132,13 @@ struct OptimizationPage: View {
                     }
 
                     inputRow(
-                        label: "Acceleration",
+                        label: localization.stats.accel,
                         min: $minAccel,
                         max: $maxAccel,
                         direction: $accelDirection
                     )
                     inputRow(
-                        label: "Weight",
+                        label: localization.stats.weight,
                         min: $minWeight,
                         max: $maxWeight,
                         direction: $weightDirection
@@ -140,25 +146,25 @@ struct OptimizationPage: View {
 
                     Group {
                         inputRow(
-                            label: "Handling",
+                            label: localization.stats.landHandling,
                             min: $minLandHandling,
                             max: $maxLandHandling,
                             direction: $landHandlingDirection
                         )
                         inputRow(
-                            label: "Water Handling",
+                            label: localization.stats.waterHandling,
                             min: $minWaterHandling,
                             max: $maxWaterHandling,
                             direction: $waterHandlingDirection
                         )
                         inputRow(
-                            label: "Glider Handling",
+                            label: localization.stats.airHandling,
                             min: $minAirHandling,
                             max: $maxAirHandling,
                             direction: $airHandlingDirection
                         )
                         inputRow(
-                            label: "Antigravity Handling",
+                            label: localization.stats.antigravHandling,
                             min: $minAntigravHandling,
                             max: $maxAntigravHandling,
                             direction: $antigravSpeedDirection
@@ -166,26 +172,26 @@ struct OptimizationPage: View {
                     }
 
                     inputRow(
-                        label: "Traction",
+                        label: localization.stats.traction,
                         min: $minTraction,
                         max: $maxTraction,
                         direction: $tractionDirection
                     )
                     inputRow(
-                        label: "Mini-Turbo",
+                        label: localization.stats.miniTurbo,
                         min: $minMiniTurbo,
                         max: $maxMiniTurbo,
                         direction: $miniTurboDirection
                     )
                     inputRow(
-                        label: "Invincibility",
+                        label: localization.stats.invuln,
                         min: $minInvuln,
                         max: $maxInvuln,
                         direction: $invulnDirection
                     )
                 }
 
-                Button("Go!") {
+                Button(localization.uiElements.go) {
                     combos = fourWayProduct(
                         Array(data.characters.enumerated()),
                         Array(data.karts.enumerated()),
@@ -255,7 +261,7 @@ struct OptimizationPage: View {
                 )
 
                 if combos.count > 75 {
-                    Text("Results have been truncated for performance reasons.")
+                    Text(localization.uiElements.resultsTruncatedWarning)
                 }
 
                 ForEach(combos.prefix(75)) { characterIndex, kartIndex, wheelIndex, gliderIndex in
@@ -288,19 +294,19 @@ struct OptimizationPage: View {
 
                         Button(">") {
                             self.character = .init(
-                                description: data.characters[characterIndex].characters[0],
+                                name: data.characters[characterIndex].characters[0],
                                 index: characterIndex
                             )
                             self.kart = .init(
-                                description: data.karts[kartIndex].karts[0],
+                                name: data.karts[kartIndex].karts[0],
                                 index: kartIndex
                             )
                             self.wheel = .init(
-                                description: data.wheels[wheelIndex].wheels[0],
+                                name: data.wheels[wheelIndex].wheels[0],
                                 index: wheelIndex
                             )
                             self.glider = .init(
-                                description: data.gliders[gliderIndex].gliders[0],
+                                name: data.gliders[gliderIndex].gliders[0],
                                 index: gliderIndex
                             )
                         }

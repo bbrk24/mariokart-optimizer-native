@@ -56,12 +56,18 @@ class BaseStatBlock: Decodable, @unchecked Sendable {
     }
 
     var labelledStats: [(String, Float)] {
-        [
-            ("Speed", speed.land), ("Water speed", speed.water), ("Glider speed", speed.air),
-            ("Antigravity speed", speed.antigrav), ("Acceleration", accel), ("Weight", weight),
-            ("Handling", handling.land), ("Water handling", handling.water),
-            ("Glider handling", handling.air), ("Antigravity handling", handling.antigrav),
-            ("Traction", traction), ("Mini-Turbo", miniTurbo), ("Invincibility", invuln),
+        let localization = localizations[OptionsManager.shared.locale]!
+
+        return [
+            (localization.stats.landSpeed, speed.land),
+            (localization.stats.waterSpeed, speed.water), (localization.stats.airSpeed, speed.air),
+            (localization.stats.antigravSpeed, speed.antigrav), (localization.stats.accel, accel),
+            (localization.stats.weight, weight), (localization.stats.landHandling, handling.land),
+            (localization.stats.waterHandling, handling.water),
+            (localization.stats.airHandling, handling.air),
+            (localization.stats.antigravHandling, handling.antigrav),
+            (localization.stats.traction, traction), (localization.stats.miniTurbo, miniTurbo),
+            (localization.stats.invuln, invuln),
         ]
     }
 }

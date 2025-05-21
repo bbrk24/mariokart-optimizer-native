@@ -3,10 +3,10 @@ import DefaultBackend
 
 @main
 public struct MKOApp: App {
-    @State var character: DescriptionAndIndex?
-    @State var kart: DescriptionAndIndex?
-    @State var wheel: DescriptionAndIndex?
-    @State var glider: DescriptionAndIndex?
+    @State var character: NameAndIndex?
+    @State var kart: NameAndIndex?
+    @State var wheel: NameAndIndex?
+    @State var glider: NameAndIndex?
     @State var showOptions = false
 
     @Environment(\.colorScheme) var colorScheme

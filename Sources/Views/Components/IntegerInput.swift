@@ -23,5 +23,12 @@ struct IntegerInput<T: BinaryInteger>: View {
             .onChange(of: text, initial: false) {
                 value = try? T(text, format: formatter)
             }
+            .onChange(of: formatter, initial: false) {
+                if let number = value {
+                    text = formatter.format(number)
+                } else {
+                    text = ""
+                }
+            }
     }
 }

@@ -1,72 +1,79 @@
 import SwiftCrossUI
 
-struct DescriptionAndIndex: Equatable, CustomStringConvertible {
-    var description: String
+struct NameAndIndex: Equatable, CustomStringConvertible {
+    var name: String
     var index: Int
+
+    var description: String {
+        localizations[OptionsManager.shared.locale]!.kartParts[name] ?? name
+    }
 }
 
 struct KartSelectionPage: View {
+    @State private var optionsManager = OptionsManager.shared
     @State private var dataManager = GameDataManager.shared
-    private var data: GameData? { dataManager.data }
 
-    @Binding var character: DescriptionAndIndex?
-    @Binding var kart: DescriptionAndIndex?
-    @Binding var wheel: DescriptionAndIndex?
-    @Binding var glider: DescriptionAndIndex?
+    @Binding var character: NameAndIndex?
+    @Binding var kart: NameAndIndex?
+    @Binding var wheel: NameAndIndex?
+    @Binding var glider: NameAndIndex?
+
+    private var localization: Localization { localizations[optionsManager.locale]! }
+    private var data: GameData? { dataManager.data }
 
     var body: some View {
         if let data {
             let karts = data.karts.enumerated()
                 .flatMap { (offset, element) in
-                    element.karts.map { DescriptionAndIndex(description: $0, index: offset) }
+                    element.karts.map { NameAndIndex(name: $0, index: offset) }
                 }
             let characters = data.characters.enumerated()
                 .flatMap { (offset, element) in
-                    element.characters.map { DescriptionAndIndex(description: $0, index: offset) }
+                    element.characters.map { NameAndIndex(name: $0, index: offset) }
                 }
             let wheels = data.wheels.enumerated()
                 .flatMap { (offset, element) in
-                    element.wheels.map { DescriptionAndIndex(description: $0, index: offset) }
+                    element.wheels.map { NameAndIndex(name: $0, index: offset) }
                 }
             let gliders = data.gliders.enumerated()
                 .flatMap { (offset, element) in
-                    element.gliders.map { DescriptionAndIndex(description: $0, index: offset) }
+                    element.gliders.map { NameAndIndex(name: $0, index: offset) }
                 }
 
             VStack {
                 Group {
                     Spacer()
 
-                    Text("Character")
+                    Text(localization.uiElements.character)
 
                     HStack {
                         Picker(of: characters, selection: _character)
 
-                        RemoteImage(src: "\(character?.description ?? "unknown").webp")
+                        RemoteImage(src: "\(character?.name ?? "unknown").webp")
                     }
 
-                    Text("Kart")
+                    Text(localization.uiElements.kart)
 
                     HStack {
                         Picker(of: karts, selection: _kart)
 
-                        RemoteImage(src: "\(kart?.description ?? "unknown").webp")
+                        RemoteImage(src: "\(kart?.name ?? "unknown").webp")
                     }
 
-                    Text("Wheels")
+                    Text(localization.uiElements.wheel)
 
                     HStack {
                         Picker(of: wheels, selection: _wheel)
 
-                        RemoteImage(src: "\(wheel?.description ?? "unknown").webp")
+                        RemoteImage(src: "\(wheel?.name ?? "unknown").webp")
                     }
 
-                    Text("Glider")
+                    Text(localization.uiElements.glider)
 
                     HStack {
                         Picker(of: gliders, selection: _glider)
 
-                        RemoteImage(src: "\(glider?.description ?? "unknown").webp")
+                        RemoteImage(src: "\(glider?.name ?? "unknown").webp")
                     }
 
                     Spacer()
@@ -88,7 +95,7 @@ struct KartSelectionPage: View {
                                 .frame(maxWidth: 320)
                         }
                     } else {
-                        Text("Select a combination to see its stats here!")
+                        Text(localization.uiElements.statsPlaceholder)
                     }
                 }
                 .frame(height: 800)
