@@ -3,7 +3,7 @@ actor RequestQueue<Id: Hashable & Sendable, Result: Sendable, Failure: Error> {
 
     func addOrWait(
         id: Id,
-        body: @Sendable @escaping () async throws(Failure) -> Result
+        body: @isolated(any) @escaping () async throws(Failure) -> Result
     ) async throws(Failure) -> Result {
         if let task = requests[id] {
             do {

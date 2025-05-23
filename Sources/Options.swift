@@ -1,7 +1,7 @@
 import Foundation
 import SwiftCrossUI
 
-final class OptionsManager: SwiftCrossUI.ObservableObject {
+final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
     private static let identifier = MKOApp.metadata?.identifier ?? "MariokartOptimizer"
 
     #if os(iOS)
@@ -86,6 +86,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject {
         }
     #endif
 
+    private let lock = NSLock()
     @SwiftCrossUI.Published private var options: Options?
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
@@ -100,6 +101,9 @@ final class OptionsManager: SwiftCrossUI.ObservableObject {
     static let shared = OptionsManager()
 
     func getOptions() -> Options {
+        lock.lock()
+        defer { lock.unlock() }
+
         if let options { return options }
 
         if !FileManager.default.fileExists(atPath: optionsFilePath) {
@@ -126,10 +130,15 @@ final class OptionsManager: SwiftCrossUI.ObservableObject {
 
     @discardableResult
     func setOptions(_ options: Options) -> Bool {
-        if options == self.options { return true }
+        lock.lock()
+        if options == self.options {
+            lock.unlock()
+            return true
+        }
 
         self.options = options
-        defer { ImageCache.shared.shrinkToFit() }
+        Task { await ImageCache.shared.shrinkToFit() }
+        lock.unlock()
 
         do {
             let data = try encoder.encode(options)

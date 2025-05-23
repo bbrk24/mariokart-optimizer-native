@@ -23,15 +23,15 @@ struct MemoryAmountInput: View {
     @State private var optionsManager = OptionsManager.shared
     @Binding var amount: UInt?
     @State private var scale: Scale? = .KB
-    @State private var number: UInt?
+    @State private var number: Double?
 
     init(amount: Binding<UInt?>) {
         _amount = amount
 
         if let value = amount.wrappedValue {
-            if value < 10 * Scale.KB.rawValue {
+            if value < Scale.KB.rawValue {
                 scale = .B
-            } else if value >= 10 * Scale.MB.rawValue {
+            } else if value >= Scale.MB.rawValue {
                 scale = .MB
             }
         }
@@ -39,7 +39,9 @@ struct MemoryAmountInput: View {
 
     var body: some View {
         HStack {
-            IntegerInput<UInt>(
+            FloatInput<Double>(
+                min: 0.0,
+                max: Double(UInt.max),
                 value: $number,
                 formatter: .init(locale: optionsManager.locale).sign(strategy: .never)
             )
@@ -48,14 +50,14 @@ struct MemoryAmountInput: View {
         }
         .onChange(of: number, initial: false) {
             if let number, let scale {
-                amount = number * scale.rawValue
+                amount = UInt((number * Double(scale.rawValue)).rounded(.toNearestOrEven))
             } else {
                 amount = nil
             }
         }
         .onChange(of: scale, initial: true) {
             if let amount, let scale {
-                number = amount / scale.rawValue
+                number = Double(amount) / Double(scale.rawValue)
             }
         }
     }

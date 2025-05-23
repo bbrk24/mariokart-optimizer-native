@@ -12,12 +12,18 @@ struct CacheEntry {
     }
 }
 
-final class ImageCache {
+actor ImageCache {
     private var cache = Dictionary<String, CacheEntry>()
     private var totalMemory: UInt = 0
 
     private init() {}
     static let shared = ImageCache()
+
+    private nonisolated func withIsolation<T: Sendable>(
+        _ callback: (isolated ImageCache) async -> T
+    ) async -> T {
+        return await callback(self)
+    }
 
     private nonisolated func addImage(
         rawBytes: Data,
@@ -41,26 +47,30 @@ final class ImageCache {
             expires: expires
         )
 
-        Task { @MainActor in
-            let oldMemoryUsed = cache[name]?.estimatedSize ?? 0
-            let newMemoryUsed = newEntry.estimatedSize
+        Task {
+            await withIsolation { this in
+                let oldMemoryUsed = this.cache[name]?.estimatedSize ?? 0
+                let newMemoryUsed = newEntry.estimatedSize
 
-            cache[name] = newEntry
-            totalMemory = totalMemory + newMemoryUsed - oldMemoryUsed
+                this.cache[name] = newEntry
+                this.totalMemory = this.totalMemory + newMemoryUsed - oldMemoryUsed
 
-            shrinkToFit()
+                this.shrinkToFit()
+            }
         }
 
         let path = OptionsManager.shared.cacheDirUrl
             .appending(component: name, directoryHint: .notDirectory)
             .relativePath
 
-        if OptionsManager.shared.getOptions().useDiskCache {
-            if saveToDiskIfAllowed {
-                _ = FileManager.default.createFile(atPath: path, contents: rawBytes)
+        Task { @MainActor in
+            if OptionsManager.shared.getOptions().useDiskCache {
+                if saveToDiskIfAllowed {
+                    _ = FileManager.default.createFile(atPath: path, contents: rawBytes)
+                }
+            } else if FileManager.default.fileExists(atPath: path) {
+                try? FileManager.default.removeItem(atPath: path)
             }
-        } else if FileManager.default.fileExists(atPath: path) {
-            try? FileManager.default.removeItem(atPath: path)
         }
 
         return decodedImage
@@ -81,15 +91,22 @@ final class ImageCache {
         )
     }
 
-    func getImage(name: String) -> (image: Image<RGBA>, lastModified: Date, expires: Date?)? {
-        if let entry = cache[name] {
-            cache[name]!.lastUsed = .now
-            if let expiration = entry.expires, expiration < .now {
-                cache[name] = nil
-                totalMemory -= entry.estimatedSize
-            }
+    nonisolated func getImage(
+        name: String
+    ) async -> (image: Image<RGBA>, lastModified: Date, expires: Date?)? {
+        if let result = await withIsolation({ this in
+            if let entry = this.cache[name] {
+                this.cache[name]!.lastUsed = .now
+                if let expiration = entry.expires, expiration < .now {
+                    this.cache[name] = nil
+                    this.totalMemory -= entry.estimatedSize
+                }
 
-            return (entry.image, entry.lastModified, entry.expires)
+                return (entry.image, entry.lastModified, entry.expires)
+            }
+            return nil
+        }) {
+            return result
         }
 
         let path = OptionsManager.shared.cacheDirUrl

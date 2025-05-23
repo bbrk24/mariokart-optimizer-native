@@ -16,7 +16,7 @@ struct ImageManager {
 
     func startLoading(imageName: String) -> AsyncStream<ImageFormats.Image<RGBA>> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
-            Task {
+            let task = Task {
                 await semaphore.wait()
                 defer {
                     continuation.finish()
@@ -24,12 +24,13 @@ struct ImageManager {
                 }
 
                 var lastModified: Date? = nil
-                if let t = ImageCache.shared.getImage(name: imageName) {
-                    continuation.yield(t.image)
-                    lastModified = t.lastModified
+                if let t = await ImageCache.shared.getImage(name: imageName) {
+                    if case .terminated = continuation.yield(t.image) {
+                        return
+                    }
 
+                    lastModified = t.lastModified
                     if let expires = t.expires, expires > .now {
-                        continuation.finish()
                         return
                     }
                 }
@@ -61,6 +62,11 @@ struct ImageManager {
                 }
 
                 if let error = result.error { print(error) }
+            }
+            continuation.onTermination = {
+                if $0 == .cancelled {
+                    task.cancel()
+                }
             }
         }
     }

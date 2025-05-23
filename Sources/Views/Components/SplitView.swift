@@ -4,7 +4,8 @@ import SwiftCrossUI
     import UIKit
 #endif
 
-struct SplitView<TSidebar: View, TDetail: View>: View {
+@MainActor
+struct SplitView<TSidebar: View, TDetail: View>: @preconcurrency View {
     var sidebar: () -> TSidebar
     var detail: () -> TDetail
 

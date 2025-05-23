@@ -21,7 +21,8 @@ enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
     }
 }
 
-struct OptimizationPage: View {
+@MainActor
+struct OptimizationPage: @preconcurrency View {
     @State private var optionsManager = OptionsManager.shared
     @State private var dataManager = GameDataManager.shared
 

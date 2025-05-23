@@ -3,7 +3,8 @@ import ImageFormats
 import Foundation
 import Alamofire
 
-struct RemoteImage: View {
+@MainActor
+struct RemoteImage: @preconcurrency View {
     @State private var image: ImageFormats.Image<RGBA>?
     @State private var loading = true
 
@@ -20,11 +21,16 @@ struct RemoteImage: View {
                 Text(src.components(separatedBy: ".")[0])
             } else {
                 ProgressView()
-                    .task {
+                    .task { @Sendable in
                         for await image in ImageManager.shared.startLoading(imageName: src) {
-                            self.image = image
+                            await MainActor.run {
+                                self.image = image
+                            }
                         }
-                        loading = false
+
+                        await MainActor.run {
+                            loading = false
+                        }
                     }
             }
         }

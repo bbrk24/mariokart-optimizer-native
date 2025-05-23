@@ -1,8 +1,9 @@
 import SwiftCrossUI
 import DefaultBackend
 
+@MainActor
 @main
-public struct MKOApp: App {
+public struct MKOApp: @preconcurrency App {
     @State var character: NameAndIndex?
     @State var kart: NameAndIndex?
     @State var wheel: NameAndIndex?
