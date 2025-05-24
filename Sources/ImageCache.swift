@@ -19,9 +19,9 @@ actor ImageCache {
     private init() {}
     static let shared = ImageCache()
 
-    private nonisolated func withIsolation<T: Sendable>(
-        _ callback: (isolated ImageCache) async -> T
-    ) async -> T {
+    private nonisolated func withIsolation<T>(
+        _ callback: (isolated ImageCache) async -> sending T
+    ) async -> sending T {
         return await callback(self)
     }
 

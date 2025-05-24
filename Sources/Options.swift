@@ -152,7 +152,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
     }
 }
 
-public enum Options: Codable, Equatable {
+public enum Options: Codable, Equatable, Sendable {
     case v1(
         memoryImageCacheSize: UInt,
         useDiskCache: Bool,
