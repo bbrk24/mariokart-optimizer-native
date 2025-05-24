@@ -5,10 +5,12 @@ enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
     case dont, min, max
 
     var description: String {
-        switch self {
-        case .dont: "Don't optimize"
-        case .min: "Minimize"
-        case .max: "Maximize"
+        let localization = localizations[OptionsManager.shared.locale]!
+        
+        return switch self {
+        case .dont: localization.uiElements.dontOptimize
+        case .min: localization.uiElements.minimize
+        case .max: localization.uiElements.maximize
         }
     }
 
