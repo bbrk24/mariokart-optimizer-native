@@ -6,7 +6,7 @@ enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
 
     var description: String {
         let localization = localizations[OptionsManager.shared.locale]!
-        
+
         return switch self {
         case .dont: localization.uiElements.dontOptimize
         case .min: localization.uiElements.minimize
@@ -64,6 +64,11 @@ struct OptimizerState {
     var tractionDirection: OptimizeDirection? = .dont
     var miniTurboDirection: OptimizeDirection? = .dont
     var invulnDirection: OptimizeDirection? = .dont
+
+    var allowedCharacters: [[(String, Bool)]] = []
+    var allowedKarts: [[(String, Bool)]] = []
+    var allowedWheels: [[(String, Bool)]] = []
+    var allowedGliders: [[(String, Bool)]] = []
 }
 
 @MainActor
@@ -77,11 +82,16 @@ struct OptimizationPage: @preconcurrency View {
     @Binding var glider: NameAndIndex?
 
     @State private var inputs = OptimizerState()
+    @State private var showLimitCharacters = false
+    @State private var showLimitKarts = false
+    @State private var showLimitWheels = false
+    @State private var showLimitGliders = false
 
     private var localization: Localization { localizations[optionsManager.locale]! }
     private var data: GameData? { dataManager.data }
 
-    @State private var combos: [(Int, Int, Int, Int)] = []
+    @State private var combos:
+        [((Int, [String]), (Int, [String]), (Int, [String]), (Int, [String]))] = []
 
     private let formatter = FloatingPointFormatStyle<Float>()
         .precision(.integerAndFractionLength(integerLimits: 1..<2, fractionLimits: 0...2))
@@ -198,12 +208,90 @@ struct OptimizationPage: @preconcurrency View {
                     )
                 }
 
+                Group {
+                    Toggle(localization.uiElements.limitCharacters, active: $showLimitCharacters)
+                        .toggleStyle(.button)
+                        .frame(maxWidth: .infinity)
+
+                    if showLimitCharacters {
+                        ForEach(Array(inputs.allowedCharacters.enumerated())) { i, els in
+                            ForEach(Array(els.enumerated())) { j, t in
+                                Toggle(
+                                    localization.kartParts[t.0] ?? t.0,
+                                    active: $inputs.allowedCharacters[i][j].1
+                                )
+                                .toggleStyle(.switch)
+                            }
+                        }
+                    }
+
+                    Toggle(localization.uiElements.limitKarts, active: $showLimitKarts)
+                        .toggleStyle(.button)
+                        .frame(maxWidth: .infinity)
+
+                    if showLimitKarts {
+                        ForEach(Array(inputs.allowedKarts.enumerated())) { i, els in
+                            ForEach(Array(els.enumerated())) { j, t in
+                                Toggle(
+                                    localization.kartParts[t.0] ?? t.0,
+                                    active: $inputs.allowedKarts[i][j].1
+                                )
+                                .toggleStyle(.switch)
+                            }
+                        }
+                    }
+
+                    Toggle(localization.uiElements.limitWheels, active: $showLimitWheels)
+                        .toggleStyle(.button)
+                        .frame(maxWidth: .infinity)
+
+                    if showLimitWheels {
+                        ForEach(Array(inputs.allowedWheels.enumerated())) { i, els in
+                            ForEach(Array(els.enumerated())) { j, t in
+                                Toggle(
+                                    localization.kartParts[t.0] ?? t.0,
+                                    active: $inputs.allowedWheels[i][j].1
+                                )
+                                .toggleStyle(.switch)
+                            }
+                        }
+                    }
+
+                    Toggle(localization.uiElements.limitGliders, active: $showLimitGliders)
+                        .toggleStyle(.button)
+                        .frame(maxWidth: .infinity)
+
+                    if showLimitGliders {
+                        ForEach(Array(inputs.allowedGliders.enumerated())) { i, els in
+                            ForEach(Array(els.enumerated())) { j, t in
+                                Toggle(
+                                    localization.kartParts[t.0] ?? t.0,
+                                    active: $inputs.allowedGliders[i][j].1
+                                )
+                                .toggleStyle(.switch)
+                            }
+                        }
+                    }
+                }
+
                 Button(localization.uiElements.go) {
                     combos = fourWayProduct(
-                        Array(data.characters.enumerated()),
-                        Array(data.karts.enumerated()),
-                        Array(data.wheels.enumerated()),
-                        Array(data.gliders.enumerated())
+                        data.characters.enumerated()
+                            .filter {
+                                inputs.allowedCharacters[$0.offset].contains(where: \.1)
+                            },
+                        data.karts.enumerated()
+                            .filter {
+                                inputs.allowedKarts[$0.offset].contains(where: \.1)
+                            },
+                        data.wheels.enumerated()
+                            .filter {
+                                inputs.allowedWheels[$0.offset].contains(where: \.1)
+                            },
+                        data.gliders.enumerated()
+                            .filter {
+                                inputs.allowedGliders[$0.offset].contains(where: \.1)
+                            }
                     )
                     .filter { character, kart, wheel, glider in
                         let statTotal =
@@ -253,7 +341,14 @@ struct OptimizationPage: @preconcurrency View {
                             + inputs.miniTurboDirection!.multiplier * statTotal.miniTurbo
                             + inputs.invulnDirection!.multiplier * statTotal.invuln
                     }
-                    .map { ($0.offset, $1.offset, $2.offset, $3.offset) }
+                    .map {
+                        (
+                            ($0.offset, inputs.allowedCharacters[$0.offset].filter(\.1).map(\.0)),
+                            ($1.offset, inputs.allowedKarts[$1.offset].filter(\.1).map(\.0)),
+                            ($2.offset, inputs.allowedWheels[$2.offset].filter(\.1).map(\.0)),
+                            ($3.offset, inputs.allowedGliders[$3.offset].filter(\.1).map(\.0))
+                        )
+                    }
                 }
                 .disabled(
                     [
@@ -278,61 +373,59 @@ struct OptimizationPage: @preconcurrency View {
                             inputs.invulnDirection,
                         ]
                         .contains(nil)
+                        || !inputs.allowedCharacters.contains { $0.contains(where: \.1) }
+                        || !inputs.allowedKarts.contains { $0.contains(where: \.1) }
+                        || !inputs.allowedWheels.contains { $0.contains(where: \.1) }
+                        || !inputs.allowedGliders.contains { $0.contains(where: \.1) }
                 )
 
                 if combos.count > 75 {
                     Text(localization.uiElements.resultsTruncatedWarning)
                 }
 
-                ForEach(combos.prefix(75)) { characterIndex, kartIndex, wheelIndex, gliderIndex in
+                ForEach(combos.prefix(75)) { characters, karts, wheels, gliders in
                     Divider()
 
                     HStack {
                         VStack {
-                            ForEach(data.characters[characterIndex].characters) {
+                            ForEach(characters.1) {
                                 RemoteImage(src: "\($0).webp")
                             }
                         }
 
                         VStack {
-                            ForEach(data.karts[kartIndex].karts) {
+                            ForEach(karts.1) {
                                 RemoteImage(src: "\($0).webp")
                             }
                         }
 
                         VStack {
-                            ForEach(data.wheels[wheelIndex].wheels) {
+                            ForEach(wheels.1) {
                                 RemoteImage(src: "\($0).webp")
                             }
                         }
 
                         VStack {
-                            ForEach(data.gliders[gliderIndex].gliders) {
+                            ForEach(gliders.1) {
                                 RemoteImage(src: "\($0).webp")
                             }
                         }
 
                         Button(">") {
-                            self.character = .init(
-                                name: data.characters[characterIndex].characters[0],
-                                index: characterIndex
-                            )
-                            self.kart = .init(
-                                name: data.karts[kartIndex].karts[0],
-                                index: kartIndex
-                            )
-                            self.wheel = .init(
-                                name: data.wheels[wheelIndex].wheels[0],
-                                index: wheelIndex
-                            )
-                            self.glider = .init(
-                                name: data.gliders[gliderIndex].gliders[0],
-                                index: gliderIndex
-                            )
+                            self.character = .init(name: characters.1[0], index: characters.0)
+                            self.kart = .init(name: karts.1[0], index: karts.0)
+                            self.wheel = .init(name: wheels.1[0], index: wheels.0)
+                            self.glider = .init(name: gliders.1[0], index: gliders.0)
                         }
                     }
                     .fixedSize()
                 }
+            }
+            .onAppear {
+                inputs.allowedCharacters = data.characters.map { $0.characters.map { ($0, true) } }
+                inputs.allowedKarts = data.karts.map { $0.karts.map { ($0, true) } }
+                inputs.allowedWheels = data.wheels.map { $0.wheels.map { ($0, true) } }
+                inputs.allowedGliders = data.gliders.map { $0.gliders.map { ($0, true) } }
             }
         } else {
             ProgressView()

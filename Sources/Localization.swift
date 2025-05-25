@@ -41,6 +41,10 @@ struct Localization {
         var kart: String
         var wheel: String
         var glider: String
+        var limitCharacters: String
+        var limitKarts: String
+        var limitWheels: String
+        var limitGliders: String
     }
 }
 
@@ -69,7 +73,7 @@ let localizations: [Locale: Localization] = [
             dontOptimize: "Don't Optimize",
             minimize: "Minimize",
             maximize: "Maximize",
-            bytes: "bytes",
+            bytes: "Bytes",
             kb: "kB",
             mb: "MB",
             maximumCache: "Maximum in-memory image cache size",
@@ -81,7 +85,11 @@ let localizations: [Locale: Localization] = [
             character: "Character",
             kart: "Kart",
             wheel: "Tires",
-            glider: "Glider"
+            glider: "Glider",
+            limitCharacters: "Limit characters",
+            limitKarts: "Limit karts",
+            limitWheels: "Limit tires",
+            limitGliders: "Limit gliders"
         ),
         kartParts: [
             "Mario": "Mario",
@@ -240,7 +248,7 @@ let localizations: [Locale: Localization] = [
             dontOptimize: "Don't Optimise",
             minimize: "Minimise",
             maximize: "Maximise",
-            bytes: "bytes",
+            bytes: "Bytes",
             kb: "kB",
             mb: "MB",
             maximumCache: "Maximum in-memory image cache size",
@@ -252,7 +260,11 @@ let localizations: [Locale: Localization] = [
             character: "Character",
             kart: "Kart",
             wheel: "Tyres",
-            glider: "Glider"
+            glider: "Glider",
+            limitCharacters: "Limit characters",
+            limitKarts: "Limit karts",
+            limitWheels: "Limit tyres",
+            limitGliders: "Limit gliders"
         ),
         kartParts: [
             "Mario": "Mario",
