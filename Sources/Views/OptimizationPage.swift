@@ -292,7 +292,12 @@ struct OptimizationPage: @preconcurrency View {
                                         atPath: fileUrl.relativePath
                                     )
                                 else {
-                                    print("Failed to open file")
+                                    ErrorManager.shared.addError(
+                                        String(
+                                            format: localization.uiElements.openFailedError,
+                                            fileUrl.relativePath
+                                        )
+                                    )
                                     return
                                 }
                                 let saveData = try decoder.decode(
@@ -301,7 +306,7 @@ struct OptimizationPage: @preconcurrency View {
                                 )
                                 inputs = .fromSaveData(saveData, gameData: data)
                             } catch {
-                                print(error)
+                                ErrorManager.shared.addError(error)
                             }
                         }
                     }
@@ -565,7 +570,7 @@ struct OptimizationPage: @preconcurrency View {
                         do {
                             saveContents = try encoder.encode(inputs.toSaveData())
                         } catch {
-                            print(error)
+                            ErrorManager.shared.addError(error)
                             return
                         }
                         Task {

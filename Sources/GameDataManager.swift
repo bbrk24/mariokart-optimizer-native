@@ -40,7 +40,7 @@ final class GameDataManager: SwiftCrossUI.ObservableObject {
             .getData(
                 url: "https://bbrk24.github.io/mariokart-optimizer/data/switch.json",
                 accept: "application/json",
-                ifModifiedSince: modificationDate
+                ifModifiedSince: self.data == nil ? nil : modificationDate
             )
 
         let data = try response.result.get()

@@ -61,7 +61,7 @@ struct ImageManager {
                     }
                 }
 
-                if let error = result.error { print(error) }
+                if let error = result.error { ErrorManager.shared.addError(error) }
             }
             continuation.onTermination = {
                 if $0 == .cancelled {

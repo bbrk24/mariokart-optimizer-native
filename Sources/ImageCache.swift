@@ -36,7 +36,7 @@ actor ImageCache {
         do {
             decodedImage = try Image<RGBA>.load(from: Array(rawBytes))
         } catch {
-            print("Error decoding image: \(error)")
+            ErrorManager.shared.addError(error)
             return nil
         }
 

@@ -156,7 +156,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
         }
 
         guard let data = FileManager.default.contents(atPath: optionsFilePath) else {
-            print("Error reading file \(optionsFilePath)")
+            ErrorManager.shared.addError("Could not open options file. Using defaults.")
             options = .default
             return .default
         }
@@ -166,7 +166,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             options = decoded
             return decoded
         } catch {
-            print("Error decoding options: \(error)")
+            ErrorManager.shared.addError(error)
             options = .default
             return .default
         }
@@ -190,7 +190,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             let success = FileManager.default.createFile(atPath: optionsFilePath, contents: data)
             return success
         } catch {
-            print("Error encoding options: \(error)")
+            ErrorManager.shared.addError(error)
             return false
         }
     }
