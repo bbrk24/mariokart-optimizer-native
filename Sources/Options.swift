@@ -10,7 +10,18 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let cacheDirUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
 
-        private init() {}
+        var dataDirUrl: URL {
+            optionsDirUrl.appending(component: "data", directoryHint: .isDirectory)
+        }
+
+        private init() {
+            if !FileManager.default.fileExists(atPath: dataDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: dataDirUrl,
+                    withIntermediateDirectories: false
+                )
+            }
+        }
     #elseif os(macOS)
         private let optionsDirUrl =
             FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -20,11 +31,15 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             FileManager.default.urls(for: .cachesDirectory, in: .localDomainMask)[0]
             .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
 
+        var dataDirUrl: URL {
+            optionsDirUrl.appending(component: "data", directoryHint: .isDirectory)
+        }
+
         private init() {
-            if !FileManager.default.fileExists(atPath: optionsDirUrl.relativePath) {
+            if !FileManager.default.fileExists(atPath: dataDirUrl.relativePath) {
                 try! FileManager.default.createDirectory(
                     at: optionsDirUrl,
-                    withIntermediateDirectories: false
+                    withIntermediateDirectories: true
                 )
             }
             if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
@@ -46,11 +61,21 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             optionsDirUrl.appending(component: "Cache", directoryHint: .isDirectory)
         }
 
+        var dataDirUrl: URL {
+            optionsDirUrl.appending(component: "data", directoryHint: .isDirectory)
+        }
+
         private init() {
             if !FileManager.default.fileExists(atPath: cacheDirUrl.relativePath) {
                 try! FileManager.default.createDirectory(
                     at: cacheDirUrl,
                     withIntermediateDirectories: true
+                )
+            }
+            if !FileManager.default.fileExists(atPath: dataDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: dataDirUrl,
+                    withIntermediateDirectories: false
                 )
             }
         }
@@ -69,6 +94,18 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             } ?? URL.homeDirectory.appending(component: ".cache", directoryHint: .isDirectory))
             .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
 
+        let dataDirUrl =
+            (ProcessInfo.processInfo.environment["XDG_DATA_HOME"]
+            .flatMap {
+                $0.hasPrefix("/") ? URL(filePath: $0) : nil
+            }
+            ?? URL.homeDirectory.appending(
+                components: ".local",
+                "share",
+                directoryHint: .isDirectory
+            ))
+            .appending(component: OptionsManager.identifier, directoryHint: .isDirectory)
+
         private init() {
             if !FileManager.default.fileExists(atPath: optionsDirUrl.relativePath) {
                 try! FileManager.default.createDirectory(
@@ -81,6 +118,13 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
                 try! FileManager.default.createDirectory(
                     at: cacheDirUrl,
                     withIntermediateDirectories: true
+                )
+            }
+            if !FileManager.default.fileExists(atPath: dataDirUrl.relativePath) {
+                try! FileManager.default.createDirectory(
+                    at: dataDirUrl,
+                    withIntermediateDirectories: true,
+                    attributes: [.posixPermissions: NSNumber(value: 0o700 as Int16)]
                 )
             }
         }

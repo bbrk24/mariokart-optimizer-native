@@ -1,5 +1,6 @@
 import SwiftCrossUI
 import DefaultBackend
+import Foundation
 
 @MainActor
 @main
@@ -18,6 +19,9 @@ public struct MKOApp: @preconcurrency App {
                 try await GameDataManager.shared.loadData()
             } catch {
                 print(error)
+                if GameDataManager.shared.data == nil {
+                    exit(1)
+                }
             }
         }
     }
@@ -33,7 +37,7 @@ public struct MKOApp: @preconcurrency App {
                 Divider()
 
                 ZStack {
-                    SplitView {
+                    NavigationSplitView {
                         ScrollView {
                             OptimizationPage(
                                 character: $character,

@@ -1,8 +1,8 @@
-struct TerrainDependentStat: Decodable {
-    var land: Float
-    var air: Float
-    var water: Float
-    var antigrav: Float
+public struct TerrainDependentStat: Codable, Equatable {
+    public var land: Float
+    public var air: Float
+    public var water: Float
+    public var antigrav: Float
 
     static let zero = TerrainDependentStat(land: 0.0, air: 0.0, water: 0.0, antigrav: 0.0)
 
@@ -16,16 +16,16 @@ struct TerrainDependentStat: Decodable {
     }
 }
 
-class BaseStatBlock: Decodable, @unchecked Sendable {
-    let speed: TerrainDependentStat
-    let accel: Float
-    let weight: Float
-    let handling: TerrainDependentStat
-    let traction: Float
-    let miniTurbo: Float
-    let invuln: Float
+public class BaseStatBlock: Codable, Equatable, @unchecked Sendable {
+    public let speed: TerrainDependentStat
+    public let accel: Float
+    public let weight: Float
+    public let handling: TerrainDependentStat
+    public let traction: Float
+    public let miniTurbo: Float
+    public let invuln: Float
 
-    private init(
+    init(
         speed: TerrainDependentStat,
         accel: Float,
         weight: Float,
@@ -55,6 +55,16 @@ class BaseStatBlock: Decodable, @unchecked Sendable {
         )
     }
 
+    public static func == (lhs: BaseStatBlock, rhs: BaseStatBlock) -> Bool {
+        return lhs.speed == rhs.speed
+            && lhs.accel == rhs.accel
+            && lhs.weight == rhs.weight
+            && lhs.handling == rhs.handling
+            && lhs.traction == rhs.traction
+            && lhs.miniTurbo == rhs.miniTurbo
+            && lhs.invuln == rhs.invuln
+    }
+
     var labelledStats: [(String, Float)] {
         let localization = localizations[OptionsManager.shared.locale]!
 
@@ -72,14 +82,20 @@ class BaseStatBlock: Decodable, @unchecked Sendable {
     }
 }
 
-final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {
-    let characters: [String]
+public final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {
+    public let characters: [String]
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.characters = try container.decode([String].self, forKey: .characters)
 
         try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: any Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(characters, forKey: .characters)
     }
 
     enum CodingKeys: String, CodingKey {
@@ -87,14 +103,20 @@ final class CharacterStatBlock: BaseStatBlock, @unchecked Sendable {
     }
 }
 
-final class WheelStatBlock: BaseStatBlock, @unchecked Sendable {
-    let wheels: [String]
+public final class WheelStatBlock: BaseStatBlock, @unchecked Sendable {
+    public let wheels: [String]
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.wheels = try container.decode([String].self, forKey: .wheels)
 
         try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: any Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(wheels, forKey: .wheels)
     }
 
     enum CodingKeys: String, CodingKey {
@@ -102,14 +124,20 @@ final class WheelStatBlock: BaseStatBlock, @unchecked Sendable {
     }
 }
 
-final class GliderStatBlock: BaseStatBlock, @unchecked Sendable {
-    let gliders: [String]
+public final class GliderStatBlock: BaseStatBlock, @unchecked Sendable {
+    public let gliders: [String]
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.gliders = try container.decode([String].self, forKey: .gliders)
 
         try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: any Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(gliders, forKey: .gliders)
     }
 
     enum CodingKeys: String, CodingKey {
@@ -117,16 +145,23 @@ final class GliderStatBlock: BaseStatBlock, @unchecked Sendable {
     }
 }
 
-final class KartStatBlock: BaseStatBlock, @unchecked Sendable {
-    let karts: [String]
-    let inwardDrift: Bool
+public final class KartStatBlock: BaseStatBlock, @unchecked Sendable {
+    public let karts: [String]
+    public let inwardDrift: Bool
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.karts = try container.decode([String].self, forKey: .karts)
         self.inwardDrift = try container.decode(Bool.self, forKey: .inwardDrift)
 
         try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: any Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(inwardDrift, forKey: .inwardDrift)
+        try container.encode(karts, forKey: .karts)
     }
 
     enum CodingKeys: String, CodingKey {
@@ -135,10 +170,10 @@ final class KartStatBlock: BaseStatBlock, @unchecked Sendable {
     }
 }
 
-struct GameData: Decodable {
-    var characters: [CharacterStatBlock]
-    var karts: [KartStatBlock]
-    var wheels: [WheelStatBlock]
-    var gliders: [GliderStatBlock]
-    var rivals: [String: [String]]
+public struct GameData: Decodable {
+    public var characters: [CharacterStatBlock]
+    public var karts: [KartStatBlock]
+    public var wheels: [WheelStatBlock]
+    public var gliders: [GliderStatBlock]
+    public var rivals: [String: [String]]
 }

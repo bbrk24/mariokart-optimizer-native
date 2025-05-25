@@ -62,7 +62,7 @@ struct OptionsPage: View {
                 .toggleStyle(.switch)
                 .padding()
 
-            Button(localization.uiElements.save) {
+            Button(localization.uiElements.saveOptions) {
                 if OptionsManager.shared.setOptions(
                     .v1(
                         memoryImageCacheSize: memoryImageCacheSize!,

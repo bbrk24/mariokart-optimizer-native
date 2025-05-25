@@ -24,8 +24,10 @@ struct Localization {
     struct UIElements {
         var options: String
         var close: String
-        var save: String
+        var saveOptions: String
         var go: String
+        var saveFilters: String
+        var loadFilters: String
         var dontOptimize: String
         var minimize: String
         var maximize: String
@@ -68,8 +70,10 @@ let localizations: [Locale: Localization] = [
         uiElements: .init(
             options: "Options",
             close: "Close",
-            save: "Save",
+            saveOptions: "Save",
             go: "Go!",
+            saveFilters: "Save these filters",
+            loadFilters: "Load filters",
             dontOptimize: "Don't Optimize",
             minimize: "Minimize",
             maximize: "Maximize",
@@ -175,11 +179,11 @@ let localizations: [Locale: Localization] = [
             "MasterCycleZero": "Master Cycle Zero",
             "Comet": "Comet",
             "SportBike": "Sport Bike",
-            "JetBike": "Jet Boke",
+            "JetBike": "Jet Bike",
             "Varmint": "Varmint",
             "CityTripper": "City Tripper",
-            "YoshiBike": "Yoshi Boke",
-            "MasterCycle": "Master Cycler",
+            "YoshiBike": "Yoshi Bike",
+            "MasterCycle": "Master Cycle",
             "StandardATV": "Standard ATV",
             "TeddyBuggy": "Teddy Buggy",
             "BoneRattler": "Bone Rattler",
@@ -243,8 +247,10 @@ let localizations: [Locale: Localization] = [
         uiElements: .init(
             options: "Options",
             close: "Close",
-            save: "Save",
+            saveOptions: "Save",
             go: "Go!",
+            saveFilters: "Save these filters",
+            loadFilters: "Load filters",
             dontOptimize: "Don't Optimise",
             minimize: "Minimise",
             maximize: "Maximise",
@@ -350,11 +356,11 @@ let localizations: [Locale: Localization] = [
             "MasterCycleZero": "Master Cycle Zero",
             "Comet": "Comet",
             "SportBike": "Sport Bike",
-            "JetBike": "Jet Boke",
+            "JetBike": "Jet Bike",
             "Varmint": "Varmint",
             "CityTripper": "City Tripper",
-            "YoshiBike": "Yoshi Boke",
-            "MasterCycle": "Master Cycler",
+            "YoshiBike": "Yoshi Bike",
+            "MasterCycle": "Master Cycle",
             "StandardATV": "Standard Quad",
             "TeddyBuggy": "Teddy Buggy",
             "BoneRattler": "Bone Rattler",

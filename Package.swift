@@ -6,7 +6,7 @@ let package = Package(
     name: "MariokartOptimizer",
     platforms: [
         .macOS(.v13),
-        .iOS(.v16),
+        // .iOS(.v16),
     ],
     dependencies: [
         .package(url: "https://github.com/stackotter/swift-cross-ui", revision: "fba2e4575ee105a5a2844ec8e9f0c2412167846b"),

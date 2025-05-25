@@ -1,10 +1,36 @@
 import SwiftCrossUI
 import Foundation
 
-enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible {
+public enum OptimizeDirection: CaseIterable, Equatable, CustomStringConvertible, Codable {
     case dont, min, max
 
-    var description: String {
+    public init(from decoder: any Decoder) throws {
+        let value = try Int8(from: decoder)
+        switch value {
+        case 0: self = .dont
+        case -1: self = .min
+        case 1: self = .max
+        default:
+            throw DecodingError.dataCorrupted(
+                .init(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Invalid value \(value) (expected -1, 0, or 1)"
+                )
+            )
+        }
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        let value =
+            switch self {
+            case .dont: 0 as Int8
+            case .min: -1 as Int8
+            case .max: 1 as Int8
+            }
+        try value.encode(to: encoder)
+    }
+
+    public var description: String {
         let localization = localizations[OptionsManager.shared.locale]!
 
         return switch self {
@@ -69,6 +95,131 @@ struct OptimizerState {
     var allowedKarts: [[(String, Bool)]] = []
     var allowedWheels: [[(String, Bool)]] = []
     var allowedGliders: [[(String, Bool)]] = []
+
+    func toSaveData() -> SaveData {
+        SaveData(
+            minStats: BaseStatBlock(
+                speed: .init(
+                    land: minLandSpeed!,
+                    air: minAirSpeed!,
+                    water: minWaterSpeed!,
+                    antigrav: minAntigravSpeed!
+                ),
+                accel: minAccel!,
+                weight: minWeight!,
+                handling: .init(
+                    land: minLandHandling!,
+                    air: minAirHandling!,
+                    water: minWaterHandling!,
+                    antigrav: minAntigravHandling!
+                ),
+                traction: minTraction!,
+                miniTurbo: minMiniTurbo!,
+                invuln: minInvuln!
+            ),
+            maxStats: BaseStatBlock(
+                speed: .init(
+                    land: maxLandSpeed!,
+                    air: maxAirSpeed!,
+                    water: maxWaterSpeed!,
+                    antigrav: maxAntigravSpeed!
+                ),
+                accel: maxAccel!,
+                weight: maxWeight!,
+                handling: .init(
+                    land: maxLandHandling!,
+                    air: maxAirHandling!,
+                    water: maxWaterHandling!,
+                    antigrav: maxAntigravHandling!
+                ),
+                traction: maxTraction!,
+                miniTurbo: maxMiniTurbo!,
+                invuln: maxInvuln!
+            ),
+            directions: Directions(
+                landSpeedDirection: landSpeedDirection!,
+                waterSpeedDirection: waterSpeedDirection!,
+                airSpeedDirection: airSpeedDirection!,
+                antigravSpeedDirection: antigravSpeedDirection!,
+                accelDirection: accelDirection!,
+                weightDirection: weightDirection!,
+                landHandlingDirection: landHandlingDirection!,
+                waterHandlingDirection: waterHandlingDirection!,
+                airHandlingDirection: airHandlingDirection!,
+                antigravHandlingDirection: antigravHandlingDirection!,
+                tractionDirection: tractionDirection!,
+                miniTurboDirection: miniTurboDirection!,
+                invulnDirection: invulnDirection!
+            ),
+            disallowedKartPieces: Set(
+                [allowedCharacters, allowedKarts, allowedWheels, allowedGliders]
+                    .flatMap {
+                        $0.flatMap {
+                            $0.filter { !$1 }.map(\.0)
+                        }
+                    }
+            )
+        )
+    }
+
+    static func fromSaveData(
+        _ saveData: SaveData,
+        gameData: GameData
+    ) -> OptimizerState {
+        .init(
+            minLandSpeed: saveData.minStats.speed.land,
+            maxLandSpeed: saveData.maxStats.speed.land,
+            minWaterSpeed: saveData.minStats.speed.water,
+            maxWaterSpeed: saveData.maxStats.speed.water,
+            minAirSpeed: saveData.minStats.speed.air,
+            maxAirSpeed: saveData.maxStats.speed.air,
+            minAntigravSpeed: saveData.minStats.speed.antigrav,
+            maxAntigravSpeed: saveData.maxStats.speed.antigrav,
+            minAccel: saveData.minStats.accel,
+            maxAccel: saveData.maxStats.accel,
+            minWeight: saveData.minStats.weight,
+            maxWeight: saveData.maxStats.weight,
+            minLandHandling: saveData.minStats.handling.land,
+            maxLandHandling: saveData.maxStats.handling.land,
+            minWaterHandling: saveData.minStats.handling.water,
+            maxWaterHandling: saveData.maxStats.handling.water,
+            minAirHandling: saveData.minStats.handling.air,
+            maxAirHandling: saveData.maxStats.handling.air,
+            minAntigravHandling: saveData.minStats.handling.antigrav,
+            maxAntigravHandling: saveData.maxStats.handling.antigrav,
+            minTraction: saveData.minStats.traction,
+            maxTraction: saveData.maxStats.traction,
+            minMiniTurbo: saveData.minStats.miniTurbo,
+            maxMiniTurbo: saveData.maxStats.miniTurbo,
+            minInvuln: saveData.minStats.invuln,
+            maxInvuln: saveData.maxStats.invuln,
+            landSpeedDirection: saveData.directions.landSpeedDirection,
+            waterSpeedDirection: saveData.directions.waterSpeedDirection,
+            airSpeedDirection: saveData.directions.airSpeedDirection,
+            antigravSpeedDirection: saveData.directions.antigravSpeedDirection,
+            accelDirection: saveData.directions.accelDirection,
+            weightDirection: saveData.directions.weightDirection,
+            landHandlingDirection: saveData.directions.landHandlingDirection,
+            waterHandlingDirection: saveData.directions.waterHandlingDirection,
+            airHandlingDirection: saveData.directions.airHandlingDirection,
+            antigravHandlingDirection: saveData.directions.antigravHandlingDirection,
+            tractionDirection: saveData.directions.tractionDirection,
+            miniTurboDirection: saveData.directions.miniTurboDirection,
+            invulnDirection: saveData.directions.invulnDirection,
+            allowedCharacters: gameData.characters.map {
+                $0.characters.map { ($0, !saveData.disallowedKartPieces.contains($0)) }
+            },
+            allowedKarts: gameData.karts.map {
+                $0.karts.map { ($0, !saveData.disallowedKartPieces.contains($0)) }
+            },
+            allowedWheels: gameData.wheels.map {
+                $0.wheels.map { ($0, !saveData.disallowedKartPieces.contains($0)) }
+            },
+            allowedGliders: gameData.gliders.map {
+                $0.gliders.map { ($0, !saveData.disallowedKartPieces.contains($0)) }
+            }
+        )
+    }
 }
 
 @MainActor
@@ -93,8 +244,18 @@ struct OptimizationPage: @preconcurrency View {
     @State private var combos:
         [((Int, [String]), (Int, [String]), (Int, [String]), (Int, [String]))] = []
 
+    @Environment(\.chooseFileSaveDestination) private var chooseSaveLocation
+    @Environment(\.chooseFile) private var chooseFile
+
     private let formatter = FloatingPointFormatStyle<Float>()
         .precision(.integerAndFractionLength(integerLimits: 1..<2, fractionLimits: 0...2))
+
+    private let encoder: PropertyListEncoder = {
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .binary
+        return encoder
+    }()
+    private let decoder = PropertyListDecoder()
 
     @ViewBuilder
     private func inputRow(
@@ -119,6 +280,32 @@ struct OptimizationPage: @preconcurrency View {
             VStack {
                 Spacer()
                     .frame(height: 4)
+
+                Button(localization.uiElements.loadFilters) {
+                    Task {
+                        if let fileUrl = await chooseFile(
+                            initialDirectory: optionsManager.dataDirUrl
+                        ) {
+                            do {
+                                guard
+                                    let encodedData = FileManager.default.contents(
+                                        atPath: fileUrl.relativePath
+                                    )
+                                else {
+                                    print("Failed to open file")
+                                    return
+                                }
+                                let saveData = try decoder.decode(
+                                    SaveData.self,
+                                    from: encodedData
+                                )
+                                inputs = .fromSaveData(saveData, gameData: data)
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
+                }
 
                 Group {
                     Group {
@@ -184,7 +371,7 @@ struct OptimizationPage: @preconcurrency View {
                             label: localization.stats.antigravHandling,
                             min: $inputs.minAntigravHandling,
                             max: $inputs.maxAntigravHandling,
-                            direction: $inputs.antigravSpeedDirection
+                            direction: $inputs.antigravHandlingDirection
                         )
                     }
 
@@ -274,80 +461,130 @@ struct OptimizationPage: @preconcurrency View {
                     }
                 }
 
-                Button(localization.uiElements.go) {
-                    combos = fourWayProduct(
-                        data.characters.enumerated()
-                            .filter {
-                                inputs.allowedCharacters[$0.offset].contains(where: \.1)
-                            },
-                        data.karts.enumerated()
-                            .filter {
-                                inputs.allowedKarts[$0.offset].contains(where: \.1)
-                            },
-                        data.wheels.enumerated()
-                            .filter {
-                                inputs.allowedWheels[$0.offset].contains(where: \.1)
-                            },
-                        data.gliders.enumerated()
-                            .filter {
-                                inputs.allowedGliders[$0.offset].contains(where: \.1)
-                            }
-                    )
-                    .filter { character, kart, wheel, glider in
-                        let statTotal =
-                            character.element + kart.element + wheel.element + glider.element
-                        return (inputs.minLandSpeed!...inputs.maxLandSpeed!)
-                            .contains(statTotal.speed.land)
-                            && (inputs.minWaterSpeed!...inputs.maxWaterSpeed!)
-                                .contains(statTotal.speed.water)
-                            && (inputs.minAirSpeed!...inputs.maxAirSpeed!)
-                                .contains(statTotal.speed.air)
-                            && (inputs.minAntigravSpeed!...inputs.maxAntigravSpeed!)
-                                .contains(statTotal.speed.antigrav)
-                            && (inputs.minAccel!...inputs.maxAccel!).contains(statTotal.accel)
-                            && (inputs.minWeight!...inputs.maxWeight!).contains(statTotal.weight)
-                            && (inputs.minLandHandling!...inputs.maxLandHandling!)
-                                .contains(statTotal.handling.land)
-                            && (inputs.minWaterHandling!...inputs.maxWaterHandling!)
-                                .contains(statTotal.handling.water)
-                            && (inputs.minAirHandling!...inputs.maxAirHandling!)
-                                .contains(statTotal.handling.air)
-                            && (inputs.minAntigravHandling!...inputs.maxAntigravHandling!)
-                                .contains(statTotal.handling.antigrav)
-                            && (inputs.minTraction!...inputs.maxTraction!)
-                                .contains(statTotal.traction)
-                            && (inputs.minMiniTurbo!...inputs.maxMiniTurbo!)
-                                .contains(statTotal.miniTurbo)
-                            && (inputs.minInvuln!...inputs.maxInvuln!).contains(statTotal.invuln)
-                    }
-                    .maxAll { character, kart, wheel, glider in
-                        let statTotal =
-                            character.element + kart.element + wheel.element + glider.element
-                        return
-                            (inputs.landSpeedDirection!.multiplier * statTotal.speed.land
-                            + inputs.waterSpeedDirection!.multiplier * statTotal.speed.water
-                            + inputs.airSpeedDirection!.multiplier * statTotal.speed.air
-                            + inputs.antigravSpeedDirection!.multiplier * statTotal.speed.antigrav)
-                            / 4.0
-                            + inputs.accelDirection!.multiplier * statTotal.accel
-                            + inputs.weightDirection!.multiplier * statTotal.weight
-                            + (inputs.landHandlingDirection!.multiplier * statTotal.handling.land
-                                + inputs.waterHandlingDirection!.multiplier
-                                * statTotal.handling.water
-                                + inputs.airHandlingDirection!.multiplier * statTotal.handling.air
-                                + inputs.antigravHandlingDirection!.multiplier
-                                * statTotal.handling.antigrav) / 4.0
-                            + inputs.tractionDirection!.multiplier * statTotal.traction
-                            + inputs.miniTurboDirection!.multiplier * statTotal.miniTurbo
-                            + inputs.invulnDirection!.multiplier * statTotal.invuln
-                    }
-                    .map {
-                        (
-                            ($0.offset, inputs.allowedCharacters[$0.offset].filter(\.1).map(\.0)),
-                            ($1.offset, inputs.allowedKarts[$1.offset].filter(\.1).map(\.0)),
-                            ($2.offset, inputs.allowedWheels[$2.offset].filter(\.1).map(\.0)),
-                            ($3.offset, inputs.allowedGliders[$3.offset].filter(\.1).map(\.0))
+                HStack {
+                    Button(localization.uiElements.go) {
+                        combos = fourWayProduct(
+                            data.characters.enumerated()
+                                .filter {
+                                    inputs.allowedCharacters[$0.offset].contains(where: \.1)
+                                },
+                            data.karts.enumerated()
+                                .filter {
+                                    inputs.allowedKarts[$0.offset].contains(where: \.1)
+                                },
+                            data.wheels.enumerated()
+                                .filter {
+                                    inputs.allowedWheels[$0.offset].contains(where: \.1)
+                                },
+                            data.gliders.enumerated()
+                                .filter {
+                                    inputs.allowedGliders[$0.offset].contains(where: \.1)
+                                }
                         )
+                        .filter { character, kart, wheel, glider in
+                            let statTotal =
+                                character.element + kart.element + wheel.element + glider.element
+                            return (inputs.minLandSpeed!...inputs.maxLandSpeed!)
+                                .contains(statTotal.speed.land)
+                                && (inputs.minWaterSpeed!...inputs.maxWaterSpeed!)
+                                    .contains(statTotal.speed.water)
+                                && (inputs.minAirSpeed!...inputs.maxAirSpeed!)
+                                    .contains(statTotal.speed.air)
+                                && (inputs.minAntigravSpeed!...inputs.maxAntigravSpeed!)
+                                    .contains(statTotal.speed.antigrav)
+                                && (inputs.minAccel!...inputs.maxAccel!).contains(statTotal.accel)
+                                && (inputs.minWeight!...inputs.maxWeight!)
+                                    .contains(statTotal.weight)
+                                && (inputs.minLandHandling!...inputs.maxLandHandling!)
+                                    .contains(statTotal.handling.land)
+                                && (inputs.minWaterHandling!...inputs.maxWaterHandling!)
+                                    .contains(statTotal.handling.water)
+                                && (inputs.minAirHandling!...inputs.maxAirHandling!)
+                                    .contains(statTotal.handling.air)
+                                && (inputs.minAntigravHandling!...inputs.maxAntigravHandling!)
+                                    .contains(statTotal.handling.antigrav)
+                                && (inputs.minTraction!...inputs.maxTraction!)
+                                    .contains(statTotal.traction)
+                                && (inputs.minMiniTurbo!...inputs.maxMiniTurbo!)
+                                    .contains(statTotal.miniTurbo)
+                                && (inputs.minInvuln!...inputs.maxInvuln!)
+                                    .contains(statTotal.invuln)
+                        }
+                        .maxAll { character, kart, wheel, glider in
+                            let statTotal =
+                                character.element + kart.element + wheel.element + glider.element
+                            return
+                                (inputs.landSpeedDirection!.multiplier * statTotal.speed.land
+                                + inputs.waterSpeedDirection!.multiplier * statTotal.speed.water
+                                + inputs.airSpeedDirection!.multiplier * statTotal.speed.air
+                                + inputs.antigravSpeedDirection!.multiplier
+                                * statTotal.speed.antigrav)
+                                / max(
+                                    1.0,
+                                    abs(inputs.landSpeedDirection!.multiplier)
+                                        + abs(inputs.waterSpeedDirection!.multiplier)
+                                        + abs(inputs.airSpeedDirection!.multiplier)
+                                        + abs(inputs.antigravSpeedDirection!.multiplier)
+                                )
+                                + inputs.accelDirection!.multiplier * statTotal.accel
+                                + inputs.weightDirection!.multiplier * statTotal.weight
+                                + (inputs.landHandlingDirection!.multiplier
+                                    * statTotal.handling.land
+                                    + inputs.waterHandlingDirection!.multiplier
+                                    * statTotal.handling.water
+                                    + inputs.airHandlingDirection!.multiplier
+                                    * statTotal.handling.air
+                                    + inputs.antigravHandlingDirection!.multiplier
+                                    * statTotal.handling.antigrav)
+                                / max(
+                                    1.0,
+                                    abs(inputs.landHandlingDirection!.multiplier)
+                                        + abs(inputs.waterHandlingDirection!.multiplier)
+                                        + abs(inputs.airHandlingDirection!.multiplier)
+                                        + abs(inputs.antigravHandlingDirection!.multiplier)
+                                )
+                                + inputs.tractionDirection!.multiplier * statTotal.traction
+                                + inputs.miniTurboDirection!.multiplier * statTotal.miniTurbo
+                                + inputs.invulnDirection!.multiplier * statTotal.invuln
+                        }
+                        .map {
+                            (
+                                (
+                                    $0.offset,
+                                    inputs.allowedCharacters[$0.offset].filter(\.1).map(\.0)
+                                ),
+                                ($1.offset, inputs.allowedKarts[$1.offset].filter(\.1).map(\.0)),
+                                ($2.offset, inputs.allowedWheels[$2.offset].filter(\.1).map(\.0)),
+                                ($3.offset, inputs.allowedGliders[$3.offset].filter(\.1).map(\.0))
+                            )
+                        }
+                    }
+
+                    Button(localization.uiElements.saveFilters) {
+                        let saveContents: Data
+                        do {
+                            saveContents = try encoder.encode(inputs.toSaveData())
+                        } catch {
+                            print(error)
+                            return
+                        }
+                        Task {
+                            if let location = await chooseSaveLocation(
+                                initialDirectory: optionsManager.dataDirUrl,
+                                defaultFileName: "filters.plist"
+                            ) {
+                                var path = location.relativePath
+                                if !path.hasSuffix(".plist") {
+                                    path += ".plist"
+                                }
+
+                                _ = FileManager.default.createFile(
+                                    atPath: path,
+                                    contents: saveContents,
+                                    attributes: [.posixPermissions: NSNumber(value: 0o600 as Int16)]
+                                )
+                            }
+                        }
                     }
                 }
                 .disabled(
