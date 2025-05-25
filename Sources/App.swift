@@ -28,7 +28,7 @@ public struct MKOApp: @preconcurrency App {
 
     public var body: some Scene {
         WindowGroup {
-            ZStack(alignment: .trailing) {
+            ZStack(alignment: .bottomTrailing) {
                 VStack(alignment: .leading, spacing: 0) {
                     Button("Options") {
                         showOptions.toggle()
@@ -76,9 +76,6 @@ public struct MKOApp: @preconcurrency App {
                 }
 
                 VStack {
-                    Spacer()
-                    Spacer()
-
                     ForEach(errorManager.enumeratedErrors) { i, error in
                         ErrorToast(text: error)
                             .onTapGesture {

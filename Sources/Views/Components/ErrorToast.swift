@@ -4,7 +4,7 @@ struct ErrorToast: View {
     var text: String
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .leading) {
             Color.red.opacity(0.75)
 
             HStack {
@@ -18,5 +18,6 @@ struct ErrorToast: View {
         }
         .frame(width: 300)
         .cornerRadius(6)
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
