@@ -231,6 +231,8 @@ struct OptimizationPage: @preconcurrency View {
     @Binding var kart: NameAndIndex?
     @Binding var wheel: NameAndIndex?
     @Binding var glider: NameAndIndex?
+    @Binding var fileDialogType: FileDialogType
+    @Binding var onFileSelect: (String) -> Void
 
     @State private var inputs = OptimizerState()
     @State private var showLimitCharacters = false
@@ -244,18 +246,10 @@ struct OptimizationPage: @preconcurrency View {
     @State private var combos:
         [((Int, [String]), (Int, [String]), (Int, [String]), (Int, [String]))] = []
 
-    @Environment(\.chooseFileSaveDestination) private var chooseSaveLocation
-    @Environment(\.chooseFile) private var chooseFile
-
     private let formatter = FloatingPointFormatStyle<Float>()
         .precision(.integerAndFractionLength(integerLimits: 1..<2, fractionLimits: 0...2))
 
-    private let encoder: PropertyListEncoder = {
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .binary
-        return encoder
-    }()
-    private let decoder = PropertyListDecoder()
+    private let saveDataManager = SaveDataManager()
 
     @ViewBuilder
     private func inputRow(
@@ -282,34 +276,24 @@ struct OptimizationPage: @preconcurrency View {
                     .frame(height: 4)
 
                 Button(localization.uiElements.loadFilters) {
-                    Task {
-                        if let fileUrl = await chooseFile(
-                            initialDirectory: optionsManager.dataDirUrl
-                        ) {
-                            do {
-                                guard
-                                    let encodedData = FileManager.default.contents(
-                                        atPath: fileUrl.relativePath
-                                    )
-                                else {
-                                    ErrorManager.shared.addError(
-                                        String(
-                                            format: localization.uiElements.openFailedError,
-                                            fileUrl.relativePath
-                                        )
-                                    )
-                                    return
-                                }
-                                let saveData = try decoder.decode(
-                                    SaveData.self,
-                                    from: encodedData
-                                )
-                                inputs = .fromSaveData(saveData, gameData: data)
-                            } catch {
-                                ErrorManager.shared.addError(error)
+                    onFileSelect = {
+                        do {
+                            guard let encodedData = saveDataManager.readSaveData(from: $0) else {
+                                return
                             }
+
+                            fileDialogType = .none
+
+                            let saveData = try saveDataManager.decoder.decode(
+                                SaveData.self,
+                                from: encodedData
+                            )
+                            inputs = .fromSaveData(saveData, gameData: data)
+                        } catch {
+                            ErrorManager.shared.addError(error)
                         }
                     }
+                    fileDialogType = .load
                 }
 
                 Group {
@@ -568,28 +552,16 @@ struct OptimizationPage: @preconcurrency View {
                     Button(localization.uiElements.saveFilters) {
                         let saveContents: Data
                         do {
-                            saveContents = try encoder.encode(inputs.toSaveData())
+                            saveContents = try saveDataManager.encoder.encode(inputs.toSaveData())
                         } catch {
                             ErrorManager.shared.addError(error)
                             return
                         }
-                        Task {
-                            if let location = await chooseSaveLocation(
-                                initialDirectory: optionsManager.dataDirUrl,
-                                defaultFileName: "filters.plist"
-                            ) {
-                                var path = location.relativePath
-                                if !path.hasSuffix(".plist") {
-                                    path += ".plist"
-                                }
-
-                                _ = FileManager.default.createFile(
-                                    atPath: path,
-                                    contents: saveContents,
-                                    attributes: [.posixPermissions: NSNumber(value: 0o600 as Int16)]
-                                )
-                            }
+                        onFileSelect = {
+                            _ = saveDataManager.writeSaveData(saveContents, to: $0)
+                            fileDialogType = .none
                         }
+                        fileDialogType = .save
                     }
                 }
                 .disabled(

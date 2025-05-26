@@ -24,10 +24,11 @@ struct Localization {
     struct UIElements {
         var options: String
         var close: String
-        var saveOptions: String
+        var saveGeneric: String
         var go: String
         var saveFilters: String
         var loadFilters: String
+        var open: String
         var dontOptimize: String
         var minimize: String
         var maximize: String
@@ -71,10 +72,11 @@ let localizations: [Locale: Localization] = [
         uiElements: .init(
             options: "Options",
             close: "Close",
-            saveOptions: "Save",
+            saveGeneric: "Save",
             go: "Go!",
             saveFilters: "Save these filters",
             loadFilters: "Load filters",
+            open: "Open",
             dontOptimize: "Don't Optimize",
             minimize: "Minimize",
             maximize: "Maximize",
@@ -249,10 +251,11 @@ let localizations: [Locale: Localization] = [
         uiElements: .init(
             options: "Options",
             close: "Close",
-            saveOptions: "Save",
+            saveGeneric: "Save",
             go: "Go!",
             saveFilters: "Save these filters",
             loadFilters: "Load filters",
+            open: "Open",
             dontOptimize: "Don't Optimise",
             minimize: "Minimise",
             maximize: "Maximise",

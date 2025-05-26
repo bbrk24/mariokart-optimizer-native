@@ -1,6 +1,10 @@
 import SwiftCrossUI
 import DefaultBackend
 
+enum FileDialogType {
+    case load, save, none
+}
+
 @MainActor
 @main
 public struct MKOApp: @preconcurrency App {
@@ -10,6 +14,8 @@ public struct MKOApp: @preconcurrency App {
     @State var glider: NameAndIndex?
     @State var showOptions = false
     @State var errorManager = ErrorManager.shared
+    @State var fileDialogType = FileDialogType.none
+    @State var onFileSelect: (String) -> Void = { _ in }
 
     @Environment(\.colorScheme) var colorScheme
 
@@ -44,7 +50,9 @@ public struct MKOApp: @preconcurrency App {
                                     character: $character,
                                     kart: $kart,
                                     wheel: $wheel,
-                                    glider: $glider
+                                    glider: $glider,
+                                    fileDialogType: $fileDialogType,
+                                    onFileSelect: $onFileSelect
                                 )
                                 .frame(width: 300)
                                 .padding(.horizontal)
@@ -75,6 +83,22 @@ public struct MKOApp: @preconcurrency App {
                     }
                 }
 
+                if fileDialogType != .none {
+                    ZStack {
+                        Color(0.5, 0.5, 0.5, 0.5)
+
+                        FileDialog(
+                            show: Binding(
+                                get: { fileDialogType != .none },
+                                set: { if !$0 { fileDialogType = .none } }
+                            ),
+                            isSaveDialog: fileDialogType == .save,
+                            onSelect: onFileSelect
+                        )
+                        .padding()
+                    }
+                }
+
                 VStack {
                     ForEach(errorManager.enumeratedErrors) { i, error in
                         ErrorToast(text: error)
@@ -87,5 +111,6 @@ public struct MKOApp: @preconcurrency App {
             }
             .font(.system(size: 16))
         }
+        .windowResizability(.contentMinSize)
     }
 }
