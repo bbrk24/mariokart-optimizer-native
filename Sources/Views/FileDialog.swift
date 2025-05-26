@@ -75,6 +75,7 @@ struct FileDialog: View {
                                 selectedFileIndex = -1
                             } else {
                                 selectedFileIndex = i
+                                textFieldInput = files[i].name
                             }
                         }
                     }
