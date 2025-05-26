@@ -58,6 +58,8 @@ struct ImageManager {
                         )
                     {
                         continuation.yield(newImage)
+                    } else if response.statusCode == 304, let expires {
+                        await ImageCache.shared.updateExpiry(for: imageName, to: expires)
                     }
                 }
 

@@ -131,6 +131,10 @@ actor ImageCache {
         return nil
     }
 
+    func updateExpiry(for name: String, to expires: Date) {
+        cache[name]?.expires = expires
+    }
+
     func shrinkToFit() {
         let expired =
             cache.filter {
