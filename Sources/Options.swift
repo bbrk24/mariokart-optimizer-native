@@ -79,7 +79,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
                 )
             }
         }
-    #else  // os(Linux)
+    #else // os(Linux)
         private let optionsDirUrl =
             (ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"]
             .flatMap {

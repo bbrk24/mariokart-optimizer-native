@@ -96,7 +96,7 @@ struct SaveDataManager {
         return data
     }
 
-    func writeSaveData(_ data: Data, to fileName: String) -> Bool {
+    func writeSaveData(_ data: Data, to fileName: String) {
         #if os(Windows)
             let attributes: [FileAttributeKey: Any] = [:]
         #else
@@ -105,12 +105,21 @@ struct SaveDataManager {
             ]
         #endif
 
-        return FileManager.default.createFile(
-            atPath: OptionsManager.shared.dataDirUrl
-                .appending(component: "\(fileName).plist", directoryHint: .notDirectory)
-                .relativePath,
+        let path = OptionsManager.shared.dataDirUrl
+            .appending(component: "\(fileName).plist", directoryHint: .notDirectory)
+            .relativePath
+
+        if !FileManager.default.createFile(
+            atPath: path,
             contents: data,
             attributes: attributes
-        )
+        ) {
+            ErrorManager.shared.addError(
+                String(
+                    format: localizations[OptionsManager.shared.locale]!.uiElements.saveFailedError,
+                    path
+                )
+            )
+        }
     }
 }

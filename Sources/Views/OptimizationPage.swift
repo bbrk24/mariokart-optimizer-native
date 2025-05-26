@@ -558,7 +558,7 @@ struct OptimizationPage: @preconcurrency View {
                             return
                         }
                         onFileSelect = {
-                            _ = saveDataManager.writeSaveData(saveContents, to: $0)
+                            saveDataManager.writeSaveData(saveContents, to: $0)
                             fileDialogType = .none
                         }
                         fileDialogType = .save

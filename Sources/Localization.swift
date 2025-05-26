@@ -49,6 +49,7 @@ struct Localization {
         var limitWheels: String
         var limitGliders: String
         var openFailedError: String
+        var saveFailedError: String
     }
 }
 
@@ -97,7 +98,8 @@ let localizations: [Locale: Localization] = [
             limitKarts: "Limit karts",
             limitWheels: "Limit tires",
             limitGliders: "Limit gliders",
-            openFailedError: "Cannot open file %@"
+            openFailedError: "Cannot open file %@",
+            saveFailedError: "Could not write to file %@"
         ),
         kartParts: [
             "Mario": "Mario",
@@ -276,7 +278,8 @@ let localizations: [Locale: Localization] = [
             limitKarts: "Limit karts",
             limitWheels: "Limit tyres",
             limitGliders: "Limit gliders",
-            openFailedError: "Cannot open file %@"
+            openFailedError: "Cannot open file %@",
+            saveFailedError: "Could not write to file %@"
         ),
         kartParts: [
             "Mario": "Mario",

@@ -79,7 +79,8 @@ struct FileDialog: View {
                         }
                     }
                 }
-            }.aspectRatio(contentMode: .fit)
+            }
+            .aspectRatio(contentMode: .fit)
 
             Divider()
 
