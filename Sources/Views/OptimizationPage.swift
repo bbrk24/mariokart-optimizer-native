@@ -222,31 +222,54 @@ struct OptimizerState {
     }
 }
 
-@MainActor
-struct OptimizationPage: @preconcurrency View {
-    @State private var optionsManager = OptionsManager.shared
-    @State private var dataManager = GameDataManager.shared
+struct OptimizationPage: View {
+    @State
+    private var optionsManager = OptionsManager.shared
 
-    @Binding var character: NameAndIndex?
-    @Binding var kart: NameAndIndex?
-    @Binding var wheel: NameAndIndex?
-    @Binding var glider: NameAndIndex?
-    @Binding var fileDialogType: FileDialogType
-    @Binding var onFileSelect: (String) -> Void
+    @State
+    private var dataManager = GameDataManager.shared
 
-    @State private var inputs = OptimizerState()
-    @State private var showLimitCharacters = false
-    @State private var showLimitKarts = false
-    @State private var showLimitWheels = false
-    @State private var showLimitGliders = false
+    @Binding
+    var character: NameAndIndex?
+
+    @Binding
+    var kart: NameAndIndex?
+
+    @Binding
+    var wheel: NameAndIndex?
+
+    @Binding
+    var glider: NameAndIndex?
+
+    @Binding
+    var fileDialogType: FileDialogType
+
+    @Binding
+    var onFileSelect: (String) -> Void
+
+    @State
+    private var inputs = OptimizerState()
+
+    @State
+    private var showLimitCharacters = false
+
+    @State
+    private var showLimitKarts = false
+
+    @State
+    private var showLimitWheels = false
+
+    @State
+    private var showLimitGliders = false
 
     private var localization: Localization { localizations[optionsManager.locale]! }
     private var data: GameData? { dataManager.data }
 
-    @State private var combos:
-        [((Int, [String]), (Int, [String]), (Int, [String]), (Int, [String]))] = []
+    @State
+    private var combos: [((Int, [String]), (Int, [String]), (Int, [String]), (Int, [String]))] = []
 
-    private let formatter = FloatingPointFormatStyle<Float>()
+    @State
+    private var formatter = FloatingPointFormatStyle<Float>()
         .precision(.integerAndFractionLength(integerLimits: 1..<2, fractionLimits: 0...2))
 
     private let saveDataManager = SaveDataManager()
@@ -640,6 +663,9 @@ struct OptimizationPage: @preconcurrency View {
                 inputs.allowedKarts = data.karts.map { $0.karts.map { ($0, true) } }
                 inputs.allowedWheels = data.wheels.map { $0.wheels.map { ($0, true) } }
                 inputs.allowedGliders = data.gliders.map { $0.gliders.map { ($0, true) } }
+            }
+            .onChange(of: optionsManager.locale, initial: true) {
+                formatter.locale = optionsManager.locale
             }
         } else {
             ProgressView()

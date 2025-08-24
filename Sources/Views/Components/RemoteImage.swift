@@ -3,8 +3,7 @@ import ImageFormats
 import Foundation
 import Alamofire
 
-@MainActor
-struct RemoteImage: @preconcurrency View {
+struct RemoteImage: View {
     @State private var image: ImageFormats.Image<RGBA>?
     @State private var loading = true
 

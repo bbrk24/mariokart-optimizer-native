@@ -1,4 +1,4 @@
-public struct TerrainDependentStat: Codable, Equatable {
+public struct TerrainDependentStat: Sendable, Codable, Equatable {
     public var land: Float
     public var air: Float
     public var water: Float

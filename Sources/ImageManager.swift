@@ -63,7 +63,11 @@ struct ImageManager {
                     }
                 }
 
-                if let error = result.error { ErrorManager.shared.addError(error) }
+                if let error = result.error {
+                    await MainActor.run {
+                        ErrorManager.shared.addError(error)
+                    }
+                }
             }
             continuation.onTermination = {
                 if $0 == .cancelled {

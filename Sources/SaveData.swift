@@ -85,7 +85,7 @@ struct SaveDataManager {
         let data = FileManager.default.contents(atPath: path)
 
         if data == nil {
-            ErrorManager.shared.addError(
+            ErrorManager.addError(
                 String(
                     format: localizations[OptionsManager.shared.locale]!.uiElements.openFailedError,
                     path
@@ -114,7 +114,7 @@ struct SaveDataManager {
             contents: data,
             attributes: attributes
         ) {
-            ErrorManager.shared.addError(
+            ErrorManager.addError(
                 String(
                     format: localizations[OptionsManager.shared.locale]!.uiElements.saveFailedError,
                     path

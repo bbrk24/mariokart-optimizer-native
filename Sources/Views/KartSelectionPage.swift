@@ -9,8 +9,7 @@ struct NameAndIndex: Equatable, CustomStringConvertible {
     }
 }
 
-@MainActor
-struct KartSelectionPage: @preconcurrency View {
+struct KartSelectionPage: View {
     @State private var optionsManager = OptionsManager.shared
     @State private var dataManager = GameDataManager.shared
 

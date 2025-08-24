@@ -2,7 +2,9 @@ import Foundation
 import SwiftCrossUI
 
 final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
-    private static let identifier = MKOApp.metadata?.identifier ?? "MariokartOptimizer"
+    private static let identifier = MainActor.assumeIsolated {
+        MKOApp.metadata?.identifier ?? "MariokartOptimizer"
+    }
 
     #if os(iOS)
         // https://stackoverflow.com/a/69395400/6253337
@@ -131,7 +133,10 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
     #endif
 
     private let lock = NSLock()
-    @SwiftCrossUI.Published private var options: Options?
+
+    @SwiftCrossUI.Published
+    private var options: Options?
+
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
@@ -156,7 +161,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
         }
 
         guard let data = FileManager.default.contents(atPath: optionsFilePath) else {
-            ErrorManager.shared.addError("Could not open options file. Using defaults.")
+            ErrorManager.addError("Could not open options file. Using defaults.")
             options = .default
             return .default
         }
@@ -166,7 +171,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             options = decoded
             return decoded
         } catch {
-            ErrorManager.shared.addError(error)
+            ErrorManager.addError(error)
             options = .default
             return .default
         }
@@ -190,7 +195,7 @@ final class OptionsManager: SwiftCrossUI.ObservableObject, @unchecked Sendable {
             let success = FileManager.default.createFile(atPath: optionsFilePath, contents: data)
             return success
         } catch {
-            ErrorManager.shared.addError(error)
+            ErrorManager.addError(error)
             return false
         }
     }

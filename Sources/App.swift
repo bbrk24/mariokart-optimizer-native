@@ -5,9 +5,8 @@ enum FileDialogType {
     case load, save, none
 }
 
-@MainActor
 @main
-public struct MKOApp: @preconcurrency App {
+public struct MKOApp: App {
     @State var character: NameAndIndex?
     @State var kart: NameAndIndex?
     @State var wheel: NameAndIndex?
